@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{employee.first_name} {{employee.last_name}}}</h1>
+
+<div class="info">
+    <p><strong>ID: </strong>{{ product.internal_code }}</p>
+    <p><strong>Category: </strong>{{ product.category }}</p>
+    <p><strong>Available Qty: </strong>{{ product.quantity }}</p>
+    <p><strong>Delivery Price: </strong>{{ product.delivery_price }}</p>
+    <p><strong>Selling Price: </strong>{{ product.sell_price }}</p>
+
+    <h3>Associated Suppliers:</h3>
+    <ul>
+        {% for supplier in product.supplier.all %}
+            <li> {{ supplier.name }}</li>
+        {% empty %}
+            <li> No suppliers are associated to this product.</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Associated Barcodes:</h3>
+    <ul>
+        {% for barcode in product.barcode.all %}
+            <li> {{ barcode.code }}</li>
+        {% empty %}
+            <li> No barcode is associated to this product.</li>
+        {% endfor %}
+    </ul>
+
+</div>
+
+<div>
+    <a href="{% url 'product_edit' product.pk %}" class="button_edit">EDIT</a>
+    <a href="{% url 'product_delete' product.pk %}" class="button_delete">DELETE</a>
+</div>
+
+
+
+{% endblock content%}

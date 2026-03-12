@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<table border="3">
+    <thead>
+    <tr>
+
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Position</th>
+        <th><a href="{% url 'employee_add'%}" title="Add a new employee">+</a></th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for employee in employees %}
+        <tr>
+            <td>{{ employee.first_name }}</td>
+            <td>{{ employee.last_name }}</td>
+            <td>{{ employee.role }} </td>
+            <td><a href="{% url 'employee_details' employee.pk%}">View</a></td>
+        </tr>
+        <tr>
+            {% empty %}
+        </tr>
+        {% endfor %}
+
+    </tbody>
+</table>
+{% endblock %}

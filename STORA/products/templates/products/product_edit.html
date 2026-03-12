@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<h1>Edit product: {{ product.name }}</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <h4><a href="{% url 'barcode_list'%}?product={{product.id}}">Manage Barcodes for this product</a></h4>
+    <button type="submit"> Update Product</button>
+</form>
+
+<hr>
+
+<a href="{% url 'product_details' product.pk%}">Cancel and back to details</a>
+<a href="{% url 'product_delete' product.pk %}" class="button_delete">DELETE this product</a>
+
+{% endblock%}

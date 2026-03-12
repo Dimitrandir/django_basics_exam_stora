@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stora System</title>
+</head>
+<body>
+    <nav>
+        <a href="{% url 'product_list' %}">Products</a> |
+        <a href="{% url 'employee_list' %}">Employees</a>
+
+
+    </nav>
+ <main>
+     {% block content %}
+     {% endblock content%}
+ </main>
+    <footer>
+        <p>&copy STORA Inventory System</p>
+    </footer>
+</body>
+</html>
