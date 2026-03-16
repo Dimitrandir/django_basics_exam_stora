@@ -46,6 +46,7 @@ class SaleItems(models.Model):
             self.price_at_sale = self.sale_item.sell_price
         tpr = self.sale_quantity * self.price_at_sale
         self.total_price_row = tpr
+        self.sale_item.quantity -= self.sale_quantity
         super().save(*args, **kwargs)
 
 

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>New Sale</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="sale-header" style="margin-bottom: 20px; padding: 15px; background-color: #f9f9f9; border-radius: 8px;">
+            <h3>General Information</h3>
+            {{ form.as_p }}
+        </div>
+
+        <div class="sale-items">
+            <h3>Products</h3>
+            {{ formset.management_form }} <table border="1" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: #eee;">
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        {% if formset.can_delete %}
+                            <th>Remove</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s_form in formset %}
+                        <tr>
+                            <td>
+                                {{ s_form.sale_item }}
+                                {{ s_form.id }} </td>
+                            <td>{{ s_form.sale_quantity }}</td>
+                            <td>{{ s_form.sale_price }}</td>
+                            {% if formset.can_delete %}
+                                <td style="text-align: center;">{{ s_form.DELETE }}</td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button type="submit" class="button-save">Complete Sale</button>
+            <a href="{% url 'employee_list' %}" class="button-cancel">Cancel</a>
+        </div>
+    </form>
+{% endblock %}

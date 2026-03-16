@@ -21,5 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('products/', include('STORA.products.urls')),
     path('accounts/', include('STORA.accounts.urls')),
+    path('sales/', include('STORA.sales.urls')),
 
 ]

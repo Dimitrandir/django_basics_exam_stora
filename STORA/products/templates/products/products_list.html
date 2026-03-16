@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+
 {% block content %}
 <table border="3">
     <thead>
@@ -17,11 +18,11 @@
         {% for product in products %}
         <tr>
             <td>{{ product.internal_code }}</td>
-            <td>{{ product.name }}</td>
+            <td>{{ product.name}}</td>
             <td>{{ product.category }}</td>
             <td>{{ product.quantity }} </td>
-            <td>{{ product.delivery_price }}</td>
-            <td>{{ product.sell_price }}</td>
+            <td>{{ product.delivery_price}}</td>
+            <td>{{ product.sell_price}}</td>
             <td><a href="{% url 'product_details' product.pk%}">View</a></td>
         </tr>
         <tr>

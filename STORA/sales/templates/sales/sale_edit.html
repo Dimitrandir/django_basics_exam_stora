@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>EDIT Sale ID: {{ sale.id }} of {{ sale.time_of_sale | date:"d.m.Y H:i"}}</h1>
+
+<form method="post">
+    <h3>General info:</h3>
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <h3>Products in this sale:</h3>
+    {{ formset.management_form }} {% for form in formset %}
+    <div class="products-in-sale">
+    {{ form.as_p }}
+    {% if form.instance.pk %}
+    {{ form.id }} {% endif %}
+    </div>
+    {% endfor %}
+
+    <button type="submit"> Update Sale</button>
+</form>
+
+<hr>
+
+<a href="{% url 'sale_details' sale.pk%}">Cancel and back to details</a>
+<a href="{% url 'sale_delete' sale.pk %}" class="button_delete">DELETE Sale</a>
+
+{% endblock %}

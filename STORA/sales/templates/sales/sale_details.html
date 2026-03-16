@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load currency_filters %}
+{% block content %}
+
+<h1>Details for Sale ID: {{ sale.id }} of {{ sale.time_of_sale | date:"d.m.Y H:i"}} </h1>
+
+ <table border="2">
+
+  <thead>
+   <tr>
+    <th>Product ID</th>
+    <th>Product Name</th>
+    <th>Quantity</th>
+    <th>Price per unit</th>
+    <th>Total price</th>
+   </tr>
+  </thead>
+
+  <tbody>
+
+  {% for product in sold_items %}
+  <tr>
+    <td>{{ product.sale_item.id }}</td>
+    <td>{{ product.sale_item.name }}</td>
+    <td>{{ product.sale_quantity }}</td>
+    <td>{{ product.price_at_sale }}</td>
+    <td>{{ product.total_price_row }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+ </table>
+<h2f align="center">Total Amount: {{ sale.total_amount|currency }}</h2f>
+<div>
+    <a href="{% url 'sale_edit' sale.pk %}" class="button_edit">EDIT</a>
+    <a href="{% url 'sale_delete' sale.pk %}" class="button_delete">DELETE</a>
+</div>
+
+{% endblock content%}

@@ -1,14 +1,15 @@
+{% load currency_filters %}
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>{{employee.first_name} {{employee.last_name}}}</h1>
+<h1>{{ product.name }}</h1>
 
 <div class="info">
     <p><strong>ID: </strong>{{ product.internal_code }}</p>
     <p><strong>Category: </strong>{{ product.category }}</p>
     <p><strong>Available Qty: </strong>{{ product.quantity }}</p>
-    <p><strong>Delivery Price: </strong>{{ product.delivery_price }}</p>
-    <p><strong>Selling Price: </strong>{{ product.sell_price }}</p>
+    <p><strong>Delivery Price: </strong>{{ product.delivery_price|currency}}</p>
+    <p><strong>Selling Price: </strong>{{ product.sell_price|currency }}</p>
 
     <h3>Associated Suppliers:</h3>
     <ul>
