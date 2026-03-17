@@ -1,3 +1,5 @@
+from django.db.models import Sum, Count
+from STORA.sales.models import SaleAttributes
 from django.shortcuts import render, get_object_or_404, redirect
 from STORA.products.models import Product, Barcode
 from STORA.products.forms import ProductForms
@@ -61,3 +63,23 @@ def barcode_list(request):
 
     context = {'barcodes': barcodes, 'product': product}
     return render(request, 'products/barcodes_list.html', context)
+
+from django.shortcuts import render
+
+def custom_404(request, exception):
+    return render(request, '404.html', status=404)
+
+def index(request):
+    total_products = Product.objects.count()
+    total_sales_count = SaleAttributes.objects.count()
+    total_revenue = SaleAttributes.objects.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+
+    recent_sales = SaleAttributes.objects.order_by('-time_of_sale')[:5]
+
+    context = {
+        'total_products': total_products,
+        'total_sales_count': total_sales_count,
+        'total_revenue': total_revenue,
+        'recent_sales': recent_sales,
+    }
+    return render(request, 'index.html', context)

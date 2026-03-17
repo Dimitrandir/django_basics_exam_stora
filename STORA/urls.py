@@ -16,11 +16,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from STORA.products.views import index, custom_404
+
 
 urlpatterns = [
+    path('', index, name='index'),
     path('admin/', admin.site.urls),
     path('products/', include('STORA.products.urls')),
     path('accounts/', include('STORA.accounts.urls')),
     path('sales/', include('STORA.sales.urls')),
 
 ]
+
+handler404 = 'STORA.products.views.custom_404'

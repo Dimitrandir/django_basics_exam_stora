@@ -51,7 +51,7 @@ def employee_delete(request, pk):
 
     else:
         context = {'employee': employee}
-        return render(request,'accounts/product_confirm_delete.html', context)
+        return render(request,'accounts/employee_confirm_delete.html', context)
 
 
 

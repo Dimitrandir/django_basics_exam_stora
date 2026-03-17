@@ -1,14 +1,16 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<table border="3">
+<h1>Employees List</h1>
+
+<table>
     <thead>
     <tr>
 
         <th>First Name</th>
         <th>Last Name</th>
         <th>Position</th>
-        <th><a href="{% url 'employee_add'%}" title="Add a new employee">+</a></th>
+        <th><a href="{% url 'employee_add'%}" class="add-btn-table" title="Add a new employee">+</a></th>
     </tr>
     </thead>
     <tbody>

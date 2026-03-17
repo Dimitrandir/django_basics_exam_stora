@@ -10,3 +10,7 @@ class ProductForms(forms.ModelForm):
 
         labels = {'name': 'Product Name', 'delivery_price': 'Last Delivery Price', 'sell_price': 'Selling Price',
                   'quantity': 'Current Stock'}
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['quantity'].widget.attrs['readonly']= True
+        self.fields['quantity'].help_text = '"Quantity cannot be changed manually.Use Deliveries, Sales, or Inventory Audit modules to update stock levels."'

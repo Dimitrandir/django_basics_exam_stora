@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
-
-
 {% block content %}
-<table border="3">
+<h1>Products List</h1>
+<table>
     <thead>
     <tr>
         <th>ID</th>
@@ -11,7 +10,7 @@
         <th>Qty</th>
         <th>Delivery Price</th>
         <th>Selling Price</th>
-        <th><a href="{% url 'product_create'%}" title="Add a new product">+</a></th>
+        <th><a href="{% url 'product_create'%}" class="add-btn-table" title="Add a new product">+</a></th>
     </tr>
     </thead>
     <tbody>

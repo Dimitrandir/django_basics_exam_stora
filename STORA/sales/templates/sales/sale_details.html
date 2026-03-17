@@ -29,7 +29,7 @@
   {% endfor %}
   </tbody>
  </table>
-<h2f align="center">Total Amount: {{ sale.total_amount|currency }}</h2f>
+<h2 align="center">Total Amount: {{ sale.total_amount|currency }}</h2>
 <div>
     <a href="{% url 'sale_edit' sale.pk %}" class="button_edit">EDIT</a>
     <a href="{% url 'sale_delete' sale.pk %}" class="button_delete">DELETE</a>

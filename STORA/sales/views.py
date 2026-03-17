@@ -14,6 +14,7 @@ def sales_add(request):
             formset.save()
             return redirect('sale_add')
     else:
+
         form = SaleForms()
         formset = saleItemFormset()
 
