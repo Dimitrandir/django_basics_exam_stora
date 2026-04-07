@@ -1,8 +1,8 @@
 from django.db.models import Sum, Count
 from STORA.sales.models import SaleAttributes
 from django.shortcuts import render, get_object_or_404, redirect
-from STORA.products.models import Product, Barcode
-from STORA.products.forms import ProductForms
+from STORA.products.models import Product, Barcode, Category, Suppliers
+from STORA.products.forms import ProductForms, CategoryForm, SuppliersForm
 
 
 def products_list(request):
@@ -52,7 +52,6 @@ def product_delete(request, pk):
         context= {'product': product}
         return render(request, 'products/product_confirm_delete.html', context)
 
-
 def barcode_list(request):
     barcodes = Barcode.objects.all()
     product_id = request.GET.get('product')
@@ -63,6 +62,97 @@ def barcode_list(request):
 
     context = {'barcodes': barcodes, 'product': product}
     return render(request, 'products/barcodes_list.html', context)
+
+
+def category_list(request):
+    categories = Category.objects.all()
+    context = {'categories': categories}
+    return render(request, 'products/category_list.html', context)
+
+
+def category_create(request):
+    if request.method == 'POST':
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('category_list')
+    else:
+        form = CategoryForm()
+
+    context = {'form': form}
+    return render(request, 'products/category_form.html', context)
+
+
+def category_edit(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+
+    if request.method == 'POST':
+        form = CategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            form.save()
+            return redirect('category_list')
+    else:
+        form = CategoryForm(instance=category)
+
+    context = {'form': form, 'category': category}
+    return render(request, 'products/category_form.html', context)
+
+
+def category_delete(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+
+    if request.method == 'POST':
+        category.delete()
+        return redirect('category_list')
+
+    context = {'category': category}
+    return render(request, 'products/category_confirm_delete.html', context)
+
+
+def suppliers_list(request):
+    suppliers = Suppliers.objects.all()
+    context = {'suppliers': suppliers}
+    return render(request, 'products/suppliers_list.html', context)
+
+
+def suppliers_create(request):
+    if request.method == 'POST':
+        form = SuppliersForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('suppliers_list')
+    else:
+        form = SuppliersForm()
+
+    context = {'form': form}
+    return render(request, 'products/suppliers_form.html', context)
+
+
+def suppliers_edit(request, pk):
+    supplier = get_object_or_404(Suppliers, pk=pk)
+
+    if request.method == 'POST':
+        form = SuppliersForm(request.POST, instance=supplier)
+        if form.is_valid():
+            form.save()
+            return redirect('suppliers_list')
+    else:
+        form = SuppliersForm(instance=supplier)
+
+    context = {'form': form, 'supplier': supplier}
+    return render(request, 'products/suppliers_form.html', context)
+
+
+def suppliers_delete(request, pk):
+    supplier = get_object_or_404(Suppliers, pk=pk)
+
+    if request.method == 'POST':
+        supplier.delete()
+        return redirect('suppliers_list')
+
+    context = {'supplier': supplier}
+    return render(request, 'products/suppliers_confirm_delete.html', context)
+
 
 from django.shortcuts import render
 
