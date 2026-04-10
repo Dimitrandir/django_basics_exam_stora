@@ -1,163 +1,89 @@
-from django.db.models import Sum, Count
+from django.shortcuts import render
+from django.urls import reverse_lazy
+from django.db.models import Sum
 from STORA.sales.models import SaleAttributes
-from django.shortcuts import render, get_object_or_404, redirect
 from STORA.products.models import Product, Barcode, Category, Suppliers
 from STORA.products.forms import ProductForms, CategoryForm, SuppliersForm
+from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView
 
+class ProductListView(ListView):
+    model = Product
+    template_name = 'products/products_list.html'
+    context_object_name = 'products'
 
-def products_list(request):
-    products = Product.objects.all()
-    context = {'products': products}
-    return render(request, 'products/products_list.html', context)
+class ProductDetailView(DetailView):
+    model = Product
+    template_name = 'products/products_details.html'
+    context_object_name = 'product'
 
-def product_details(request, pk):
+class ProductCreateView(CreateView):
+    model = Product
+    form_class = ProductForms
+    template_name = 'products/product_create.html'
+    success_url = reverse_lazy('product_list')
 
-    product = get_object_or_404(Product, pk=pk)
+class ProductUpdateView(UpdateView):
+    model = Product
+    form_class = ProductForms
+    template_name = 'products/product_edit.html'
+    context_object_name = 'product'
+    success_url = reverse_lazy('product_list')
 
-    context = {'product': product}
-    return render(request, 'products/products_details.html', context)
+class ProductDeleteView(DeleteView):
+    model = Product
+    template_name = 'products/product_confirm_delete.html'
+    success_url = reverse_lazy('product_list')
 
-def product_create(request):
-    if request.method == 'POST':
-        form = ProductForms(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('product_list')
-    else:
-        form = ProductForms()
+class BarcodeListView(ListView):
+    model = Barcode
+    template_name = 'products/barcodes_list.html'
+    context_object_name = 'barcodes'
 
-    context = {'form': form}
-    return render(request, 'products/product_create.html', context)
+class CategoryListView(ListView):
+    model = Category
+    template_name = 'products/category_list.html'
+    context_object_name = 'categories'
 
-def product_edit(request, pk):
-    product = get_object_or_404(Product, pk=pk)
-    if request.method == 'POST':
-        form = ProductForms(request.POST, instance= product)
-        if form.is_valid():
-            form.save()
-            return redirect('product_details', pk=product.pk)
-    else:
-        form = ProductForms(instance=product)
+class CategoryCreateView(CreateView):
+    model = Category
+    form_class = CategoryForm
+    template_name = 'products/category_form.html'
+    success_url = reverse_lazy('category_list')
 
-    context = {'form':form, 'product':product}
-    return render(request, 'products/product_edit.html', context)
+class CategoryUpdateView(UpdateView):
+    model = Category
+    form_class = CategoryForm
+    template_name = 'products/category_form.html'
+    context_object_name = 'category'
+    success_url = reverse_lazy('category_list')
 
+class CategoryDeleteView(DeleteView):
+    model = Category
+    template_name = 'products/category_confirm_delete.html'
+    success_url = reverse_lazy('category_list')
 
-def product_delete(request, pk):
-    product = get_object_or_404(Product, pk=pk)
-    if request.method == 'POST':
-        product.delete()
-        return redirect('product_list')
-    else:
-        context= {'product': product}
-        return render(request, 'products/product_confirm_delete.html', context)
+class SuppliersListView(ListView):
+    model = Suppliers
+    template_name = 'products/suppliers_list.html'
+    context_object_name = 'suppliers'
 
-def barcode_list(request):
-    barcodes = Barcode.objects.all()
-    product_id = request.GET.get('product')
-    product = None
-    if product_id:
-        barcodes = barcodes.filter(product_id=product_id)
-        product = get_object_or_404(Product, pk=product_id)
+class SupplierCreateView(CreateView):
+    model = Suppliers
+    form_class = SuppliersForm
+    template_name = 'products/suppliers_form.html'
+    success_url = reverse_lazy('supplier_list')
 
-    context = {'barcodes': barcodes, 'product': product}
-    return render(request, 'products/barcodes_list.html', context)
+class SupplierUpdateView(UpdateView):
+    model = Suppliers
+    form_class = SuppliersForm
+    template_name = 'products/suppliers_form.html'
+    context_object_name = 'supplier'
+    success_url = reverse_lazy('suppliers_list')
 
-
-def category_list(request):
-    categories = Category.objects.all()
-    context = {'categories': categories}
-    return render(request, 'products/category_list.html', context)
-
-
-def category_create(request):
-    if request.method == 'POST':
-        form = CategoryForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('category_list')
-    else:
-        form = CategoryForm()
-
-    context = {'form': form}
-    return render(request, 'products/category_form.html', context)
-
-
-def category_edit(request, pk):
-    category = get_object_or_404(Category, pk=pk)
-
-    if request.method == 'POST':
-        form = CategoryForm(request.POST, instance=category)
-        if form.is_valid():
-            form.save()
-            return redirect('category_list')
-    else:
-        form = CategoryForm(instance=category)
-
-    context = {'form': form, 'category': category}
-    return render(request, 'products/category_form.html', context)
-
-
-def category_delete(request, pk):
-    category = get_object_or_404(Category, pk=pk)
-
-    if request.method == 'POST':
-        category.delete()
-        return redirect('category_list')
-
-    context = {'category': category}
-    return render(request, 'products/category_confirm_delete.html', context)
-
-
-def suppliers_list(request):
-    suppliers = Suppliers.objects.all()
-    context = {'suppliers': suppliers}
-    return render(request, 'products/suppliers_list.html', context)
-
-
-def suppliers_create(request):
-    if request.method == 'POST':
-        form = SuppliersForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('suppliers_list')
-    else:
-        form = SuppliersForm()
-
-    context = {'form': form}
-    return render(request, 'products/suppliers_form.html', context)
-
-
-def suppliers_edit(request, pk):
-    supplier = get_object_or_404(Suppliers, pk=pk)
-
-    if request.method == 'POST':
-        form = SuppliersForm(request.POST, instance=supplier)
-        if form.is_valid():
-            form.save()
-            return redirect('suppliers_list')
-    else:
-        form = SuppliersForm(instance=supplier)
-
-    context = {'form': form, 'supplier': supplier}
-    return render(request, 'products/suppliers_form.html', context)
-
-
-def suppliers_delete(request, pk):
-    supplier = get_object_or_404(Suppliers, pk=pk)
-
-    if request.method == 'POST':
-        supplier.delete()
-        return redirect('suppliers_list')
-
-    context = {'supplier': supplier}
-    return render(request, 'products/suppliers_confirm_delete.html', context)
-
-
-from django.shortcuts import render
-
-def custom_404(request, exception):
-    return render(request, '404.html', status=404)
+class SupplierDeleteView(DeleteView):
+    model = Suppliers
+    template_name = 'products/suppliers_confirm_delete.html'
+    success_url = reverse_lazy('suppliers__list')
 
 def index(request):
     total_products = Product.objects.count()
@@ -173,3 +99,6 @@ def index(request):
         'recent_sales': recent_sales,
     }
     return render(request, 'index.html', context)
+
+def custom_404(request, exception):
+    return render(request, '404.html', status=404)

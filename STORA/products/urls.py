@@ -1,19 +1,21 @@
 from django.urls import path
-from . import views
+from .views import (ProductListView, ProductCreateView, ProductDeleteView, ProductUpdateView, ProductDetailView,
+                    BarcodeListView, CategoryListView, CategoryCreateView, CategoryDeleteView, CategoryUpdateView,
+                    SuppliersListView, SupplierCreateView, SupplierUpdateView, SupplierDeleteView)
 
-urlpatterns = [path('', views.products_list, name= 'product_list'),
-               path('create/', views.product_create, name='product_create'),
-               path('<int:pk>/', views.product_details, name='product_details'),
-               path('edit/<int:pk>/', views.product_edit, name='product_edit'),
-               path('delete/<int:pk>/', views.product_delete, name='product_delete'),
-               path('barcodes/', views.barcode_list, name='barcode_list'),
-               path('categories/', views.category_list, name='category_list'),
-               path('categories/add/', views.category_create, name='category_create'),
-               path('categories/edit/<int:pk>/', views.category_edit, name='category_edit'),
-               path('categories/delete/<int:pk>/', views.category_delete, name='category_delete'),
-               path('suppliers/', views.suppliers_list, name='suppliers_list'),
-               path('suppliers/add/', views.suppliers_create, name='suppliers_create'),
-               path('suppliers/edit/<int:pk>/', views.suppliers_edit, name='suppliers_edit'),
-               path('suppliers/delete/<int:pk>/', views.suppliers_delete, name='suppliers_delete'),
+urlpatterns = [path('', ProductListView.as_view(), name= 'product_list'),
+               path('create/', ProductCreateView.as_view(), name='product_create'),
+               path('<int:pk>/', ProductDetailView.as_view(), name='product_details'),
+               path('edit/<int:pk>/', ProductUpdateView.as_view(), name='product_edit'),
+               path('delete/<int:pk>/', ProductDeleteView.as_view(), name='product_delete'),
+               path('barcodes/', BarcodeListView.as_view(), name='barcode_list'),
+               path('categories/', CategoryListView.as_view(), name='category_list'),
+               path('categories/add/', CategoryCreateView.as_view(), name='category_create'),
+               path('categories/edit/<int:pk>/', CategoryUpdateView.as_view(), name='category_edit'),
+               path('categories/delete/<int:pk>/', CategoryDeleteView.as_view(), name='category_delete'),
+               path('suppliers/', SuppliersListView.as_view(), name='suppliers_list'),
+               path('suppliers/add/', SupplierCreateView.as_view(), name='suppliers_create'),
+               path('suppliers/edit/<int:pk>/', SupplierUpdateView.as_view(), name='suppliers_edit'),
+               path('suppliers/delete/<int:pk>/', SupplierDeleteView.as_view(), name='suppliers_delete'),
 
                ]

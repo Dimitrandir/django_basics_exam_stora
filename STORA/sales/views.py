@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, DeleteView
 from STORA.sales.forms import SaleForms, saleItemFormset
 from STORA.sales.models import SaleAttributes
-
 
 def sales_add(request):
     if request.method == "POST":
@@ -21,11 +22,15 @@ def sales_add(request):
     context = {'form': form, 'formset': formset}
     return render(request, 'sales/sale_add.html', context)
 
-def sale_details(request, pk):
-    sale = get_object_or_404(SaleAttributes, pk=pk)
-    sold_items = sale.items.all()
-    context = {'sale': sale,'sold_items': sold_items}
-    return render(request, 'sales/sale_details.html', context)
+class SalesDetailView(DetailView):
+    model = SaleAttributes
+    template_name = 'sales/sale_details.html'
+    context_object_name = 'sale'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['sold_items'] = self.object.items.all()
+        return context
 
 def sale_edit(request, pk):
     sale = get_object_or_404(SaleAttributes, pk=pk)
@@ -42,16 +47,13 @@ def sale_edit(request, pk):
     context = {'sale':sale,'form':form, 'formset': formset}
     return render(request, 'sales/sale_edit.html', context)
 
-def sales_list(request):
-    sales = SaleAttributes.objects.all()
-    context = {'sales': sales}
-    return render(request, 'sales/sales_list.html', context)
+class SalesListView(ListView):
+    model = SaleAttributes
+    template_name = 'sales/sales_list.html'
+    context_object_name = 'sales'
 
-def sale_delete(request, pk):
-    sale = get_object_or_404(SaleAttributes, pk=pk)
-    if request.method == 'POST':
-        sale.delete()
-        return redirect('sales_list')
-    else:
-        context = {'sale': sale}
-        return render(request, 'sales/sale_confirm_delete.html', context)
+class SalesDeleteView(DeleteView):
+    model = SaleAttributes
+    template_name = 'sales/sale_confirm_delete.html'
+    context_object_name = 'sale'
+    success_url = reverse_lazy('sales_list')

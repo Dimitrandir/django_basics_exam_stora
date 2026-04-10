@@ -1,9 +1,10 @@
 from django.urls import path
 from . import views
+from .views import SalesListView, SalesDeleteView, SalesDetailView
 
-urlpatterns = [ path('', views.sales_list, name='sales_list'),
+urlpatterns = [ path('', SalesListView.as_view(), name='sales_list'),
                 path('add/', views.sales_add, name='sale_add'),
-                path('<int:pk>/', views.sale_details, name='sale_details'),
+                path('<int:pk>/', SalesDetailView.as_view(), name='sale_details'),
                 path('edit/<int:pk>/', views.sale_edit, name='sale_edit'),
-                path('delete/<int:pk>/', views.sale_delete, name='sale_delete'),
+                path('delete/<int:pk>/', SalesDeleteView.as_view(), name='sale_delete'),
                 ]

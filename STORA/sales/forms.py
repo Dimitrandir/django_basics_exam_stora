@@ -8,7 +8,16 @@ class SaleForms(forms.ModelForm):
     class Meta:
         model = SaleAttributes
         fields = ['cashier']
+        labels = {'cashier': 'Cashier'}
 
-saleItemFormset = inlineformset_factory(SaleAttributes, SaleItems,
-                                        fields=['sale_item', 'sale_quantity'], extra=9, can_delete=True)
+saleItemFormset = inlineformset_factory(
+    SaleAttributes,
+    SaleItems,
+    fields=['sale_item', 'sale_quantity'],
+    extra=3,
+    can_delete=True,
+    widgets = {
+    'sale_item': forms.Select(attrs={'style': 'width: 100%;'}),
+    'sale_quantity': forms.NumberInput(attrs={'min': 1}),} )
+
 
