@@ -2,19 +2,69 @@
 
 {% block content %}
 
-    <h1>Add new product</h1>
-    {% if form.errors %}
+    <h1>Add a new product</h1>
+
+    {% if form.errors or barcode_formset.errors %}
     <div style="color: red;">
         <strong>Please correct these errors:</strong>
         {{ form.errors }}
+        {{ barcode_formset.errors }}
     </div>
     {% endif %}
+
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+
+        <p>
+            {{ form.internal_code.label_tag }}
+            {{ form.internal_code }}
+            {{ form.internal_code.errors }}
+        </p>
+
+        <p>
+            {{ form.name.label_tag }}
+            {{ form.name }}
+            {{ form.name.errors }}
+        </p>
+
+        <p>
+            {{ form.delivery_price.label_tag }}
+            {{ form.delivery_price }}
+            {{ form.delivery_price.errors }}
+        </p>
+
+        <p>
+            {{ form.sell_price.label_tag }}
+            {{ form.sell_price }}
+            {{ form.sell_price.errors }}
+        </p>
+
+        <p>
+            {{ form.category.label_tag }}
+            {{ form.category }}
+            <a href="{% url 'category_create' %}" target="_blank" style="margin-left: 10px;">+ New category</a>
+            {{ form.category.errors }}
+        </p>
+
+        {{ barcode_formset.management_form }}
+        <hr>
+        {% for barcode_form in barcode_formset %}
+            <div class="barcode-form">
+                {{ barcode_form.as_p }}
+            </div>
+        {% endfor %}
+        <hr>
+        <p>
+            {{ form.supplier.label_tag }}
+            {{ form.supplier }}
+            <a href="{% url 'suppliers_create' %}" target="_blank" style="margin-left: 10px;">+ New supplier</a>
+            {{ form.supplier.errors }}
+        </p>
+
         <button type="submit">Save</button>
+        <a href="{% url 'product_list' %}">Cancel</a>
+
     </form>
-    <hr>
-    <a href="{% url 'product_list' %}">Cancel</a>
+
 
 {% endblock %}

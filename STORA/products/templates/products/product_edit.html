@@ -7,14 +7,65 @@
 
 <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-    <h4><a href="{% url 'barcode_list'%}?product={{product.id}}">Manage Barcodes for this product</a></h4>
+     <p>
+            {{ form.internal_code.label_tag }}
+            {{ form.internal_code }}
+            {{ form.internal_code.errors }}
+        </p>
+
+        <p>
+            {{ form.name.label_tag }}
+            {{ form.name }}
+            {{ form.name.errors }}
+        </p>
+
+        <p>
+            {{ form.delivery_price.label_tag }}
+            {{ form.delivery_price }}
+            {{ form.delivery_price.errors }}
+        </p>
+
+        <p>
+            {{ form.sell_price.label_tag }}
+            {{ form.sell_price }}
+            {{ form.sell_price.errors }}
+        </p>
+
+         <p>
+            {{ form.quantity.label_tag }}
+            {{ form.quantity }}
+             <small>{{ form.quantity.help_text }}</small>
+            {{ form.quantity.errors }}
+        </p>
+
+        <p>
+            {{ form.category.label_tag }}
+            {{ form.category }}
+            <a href="{% url 'category_create' %}" target="_blank" style="margin-left: 10px;">+ New category</a>
+            {{ form.category.errors }}
+        </p>
+
+        {{ barcode_formset.management_form }}
+        <hr>
+        {% for barcode_form in barcode_formset %}
+            <div class="barcode-form">
+                {{ barcode_form.as_p }}
+            </div>
+        {% endfor %}
+        <hr>
+        <p>
+            {{ form.supplier.label_tag }}
+            {{ form.supplier }}
+            <a href="{% url 'suppliers_create' %}" target="_blank" style="margin-left: 10px;">+ New supplier</a>
+            {{ form.supplier.errors }}
+        </p>
+
     <button type="submit"> Update Product</button>
 </form>
 
 <hr>
 
-<a href="{% url 'product_details' product.pk%}">Cancel and back to details</a>
+<a href="{% url 'product_list'%}">Cancel and back to Products</a>
 <a href="{% url 'product_delete' product.pk %}" class="button_delete">DELETE this product</a>
 
 {% endblock%}

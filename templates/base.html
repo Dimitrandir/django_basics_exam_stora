@@ -16,10 +16,12 @@
         <a href="{% url 'sales_list' %}">💰 Sales</a>
 
         {% if user.is_authenticated %}
-            <a href="{% url 'logout' %}">Logout</a>
+           <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit">Logout {{ user.username }}</button>
+           </form>
         {% else %}
             <a href="{% url 'login' %}">Login</a>
-            <a href="{% url 'register' %}">Register</a>
         {% endif %}
     </nav>
 

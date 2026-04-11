@@ -15,7 +15,7 @@ class SaleAttributes(models.Model):
         super().save(*args, **kwargs)
         total_sum = 0
         for item in self.items.all():
-           total_sum += item.total_price_row
+           total_sum += item.total_price_row or 0
         self.total_amount = total_sum
         super().save(update_fields=['total_amount'])
 

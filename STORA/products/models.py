@@ -50,7 +50,7 @@ class Product(models.Model):
     sell_price = models.DecimalField(blank=True, validators=[MinValueValidator(0.01)],null=True, max_digits=9,
                                      decimal_places=2, verbose_name='sale price', help_text="Selling price per unit")
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='product')
-    quantity = models.IntegerField(default=0, blank=False, verbose_name='stock quantity',
+    quantity = models.IntegerField(default=0, blank=True, verbose_name='stock quantity',
                                    help_text='Can be negative if items are sold before delivery is recorded')
     supplier = models.ManyToManyField(Suppliers, blank=True, related_name='products')
 

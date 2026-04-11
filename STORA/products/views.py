@@ -3,7 +3,7 @@ from django.urls import reverse_lazy
 from django.db.models import Sum
 from STORA.sales.models import SaleAttributes
 from STORA.products.models import Product, Barcode, Category, Suppliers
-from STORA.products.forms import ProductForms, CategoryForm, SuppliersForm
+from STORA.products.forms import ProductForms, CategoryForm, SuppliersForm, BarcodeFormSet
 from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView
 
 class ProductListView(ListView):
@@ -22,6 +22,26 @@ class ProductCreateView(CreateView):
     template_name = 'products/product_create.html'
     success_url = reverse_lazy('product_list')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['barcode_formset'] = BarcodeFormSet(self.request.POST)
+        else:
+            context['barcode_formset'] = BarcodeFormSet()
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        barcode_formset = context['barcode_formset']
+        self.object = form.save()
+
+        if barcode_formset.is_valid():
+            barcode_formset.instance = self.object
+            barcode_formset.save()
+
+        return super().form_valid(form)
+
+
 class ProductUpdateView(UpdateView):
     model = Product
     form_class = ProductForms
@@ -29,15 +49,29 @@ class ProductUpdateView(UpdateView):
     context_object_name = 'product'
     success_url = reverse_lazy('product_list')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['barcode_formset'] = BarcodeFormSet(self.request.POST, instance=self.object)
+        else:
+            context['barcode_formset'] = BarcodeFormSet(instance=self.object)
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        barcode_formset = context['barcode_formset']
+        self.object = form.save()
+
+        if barcode_formset.is_valid():
+            barcode_formset.instance = self.object
+            barcode_formset.save()
+
+        return super().form_valid(form)
+
 class ProductDeleteView(DeleteView):
     model = Product
     template_name = 'products/product_confirm_delete.html'
     success_url = reverse_lazy('product_list')
-
-class BarcodeListView(ListView):
-    model = Barcode
-    template_name = 'products/barcodes_list.html'
-    context_object_name = 'barcodes'
 
 class CategoryListView(ListView):
     model = Category
@@ -71,7 +105,7 @@ class SupplierCreateView(CreateView):
     model = Suppliers
     form_class = SuppliersForm
     template_name = 'products/suppliers_form.html'
-    success_url = reverse_lazy('supplier_list')
+    success_url = reverse_lazy('suppliers_list')
 
 class SupplierUpdateView(UpdateView):
     model = Suppliers

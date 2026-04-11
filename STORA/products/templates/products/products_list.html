@@ -22,7 +22,10 @@
             <td>{{ product.quantity }} </td>
             <td>{{ product.delivery_price}}</td>
             <td>{{ product.sell_price}}</td>
-            <td><a href="{% url 'product_details' product.pk%}">View</a></td>
+            <td><a href="{% url 'product_details' product.pk%}">View</a>
+            |
+                <a href="{% url 'product_delete' product.pk %}">Delete</a>
+            </td>
         </tr>
         <tr>
             {% empty %}
