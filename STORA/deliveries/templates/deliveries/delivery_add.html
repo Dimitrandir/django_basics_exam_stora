@@ -9,12 +9,12 @@
     <div style="margin-bottom: 20px; padding: 15px; background-color: #f9f9f9; border-radius: 8px;">
         <h3>General Information</h3>
         <p>
-            {{ form.cashier.label_tag }}
-            {{ form.cashier }}
+            {{ form.receiver.label_tag }}
+            {{ form.receiver }}
         </p>
     </div>
 
-    <div class="sale-items">
+    <div class="delivery-items">
         <h3>Products</h3>
         {{ formset.management_form }}
 
@@ -29,9 +29,9 @@
                     <th>Remove</th>
                 </tr>
             </thead>
-            <tbody id="sale-items-body">
+            <tbody id="delivery-items-body">
                 {% for s_form in formset %}
-                    <tr class="sale-row">
+                    <tr class="delivery-row">
                         <td>
                             {{ s_form.product_code }}
                             {{ s_form.sale_item }}
@@ -41,7 +41,7 @@
                         <td>{{ s_form.unit_price }}</td>
                         <td>{{ s_form.line_total }}</td>
                         <td>{{ s_form.DELETE }}</td>
-                        {{ s_form.price_at_sale }}
+                        {{ s_form.price_at_delivery }}
                         {{ s_form.total_price_row }}
                     </tr>
                 {% endfor %}
@@ -49,7 +49,7 @@
         </table>
 
         <template id="empty-form-template">
-            <tr class="sale-row">
+            <tr class="delivery-row">
                 <td>
                     {{ formset.empty_form.product_code }}
                     {{ formset.empty_form.sale_item }}
@@ -59,7 +59,7 @@
                 <td>{{ formset.empty_form.unit_price }}</td>
                 <td>{{ formset.empty_form.line_total }}</td>
                 <td>{{ formset.empty_form.DELETE }}</td>
-                {{ formset.empty_form.price_at_sale }}
+                {{ formset.empty_form.price_at_delivery }}
                 {{ formset.empty_form.total_price_row }}
             </tr>
         </template>
@@ -72,7 +72,7 @@
 
     <div style="margin-top: 20px;">
         <button type="button" id="add-row-btn">+ Add row</button>
-        <button type="submit" class="button-save">Complete Sale</button>
+        <button type="submit" class="button-save">Complete Delivery</button>
         <a href="{% url 'sales_list' %}" class="button-cancel">Cancel</a>
     </div>
 </form>
@@ -101,7 +101,7 @@
     function updateTransactionTotal() {
         let total = 0;
 
-        document.querySelectorAll('.sale-row').forEach(row => {
+        document.querySelectorAll('.delivery-row').forEach(row => {
             if (row.style.display !== 'none') {
                 const lineTotalInput = row.querySelector('.line-total-input');
                 total += parseFloat(lineTotalInput.value || 0);
@@ -162,10 +162,10 @@
         }
     }
 
-    document.querySelectorAll('.sale-row').forEach(bindRow);
+    document.querySelectorAll('.delivery-row').forEach(bindRow);
 
     document.getElementById('add-row-btn').addEventListener('click', () => {
-        const body = document.getElementById('sale-items-body');
+        const body = document.getElementById('delivery-items-body');
         const totalFormsInput = document.getElementById(`id_${formPrefix}-TOTAL_FORMS`);
         const formCount = parseInt(totalFormsInput.value);
 

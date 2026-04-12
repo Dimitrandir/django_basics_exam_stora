@@ -5,6 +5,5 @@ from .views import SalesListView, SalesDeleteView, SalesDetailView
 urlpatterns = [ path('', SalesListView.as_view(), name='sales_list'),
                 path('add/', views.sales_add, name='sale_add'),
                 path('<int:pk>/', SalesDetailView.as_view(), name='sale_details'),
-                path('edit/<int:pk>/', views.sale_edit, name='sale_edit'),
                 path('delete/<int:pk>/', SalesDeleteView.as_view(), name='sale_delete'),
                 ]

@@ -55,22 +55,6 @@ class SalesDetailView(DetailView):
         context['sold_items'] = self.object.items.all()
         return context
 
-def sale_edit(request, pk):
-    sale = get_object_or_404(SaleAttributes, pk=pk)
-    if request.method == 'POST':
-        form = SaleForms(request.POST, instance=sale, current_user=request.user)
-        formset = SaleItemFormSet(request.POST, instance=sale)
-        if form.is_valid() and formset.is_valid():
-            form.save()
-            formset.save()
-            return redirect('sales_list')
-    else:
-        form = SaleForms(instance=sale, current_user=request.user)
-        formset = SaleItemFormSet(instance=sale)
-
-    context = {'sale': sale, 'form': form, 'formset': formset}
-    return render(request, 'sales/sale_edit.html', context)
-
 class SalesListView(ListView):
     model = SaleAttributes
     template_name = 'sales/sales_list.html'
