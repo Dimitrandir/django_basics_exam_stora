@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, DeleteView
+from django.views.generic import ListView, DetailView, DeleteView, UpdateView
 
 from STORA.deliveries.forms import DeliveryForms, DeliveryItemFormSet
 from STORA.deliveries.models import DeliveryAttributes
@@ -8,7 +8,7 @@ from STORA.products.models import Product, Barcode
 
 def deliveries_add(request):
     products_data = list(
-        Product.objects.values('id', 'internal_code', 'name', 'sell_price')
+        Product.objects.values('id', 'internal_code', 'name', 'delivery_price')
     )
     barcodes_data = list(
         Barcode.objects.values('code', 'product_id')
@@ -58,6 +58,48 @@ class DeliveryListView(ListView):
     model = DeliveryAttributes
     template_name = 'deliveries/deliveries_list.html'
     context_object_name = 'deliveries'
+
+class DeliveryUpdateView(UpdateView):
+    model = DeliveryAttributes
+    form_class = DeliveryForms
+    template_name = 'deliveries/delivery_edit.html'
+    context_object_name = 'delivery'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['formset_prefix'] = 'items'
+        context['products_data'] = list(
+            Product.objects.values('id', 'internal_code', 'name', 'delivery_price')
+        )
+        context['barcodes_data'] = list(
+            Barcode.objects.values('code', 'product_id')
+        )
+
+        if self.request.POST:
+            context['formset'] = DeliveryItemFormSet(
+                self.request.POST,
+                instance=self.object,
+                prefix='items'
+            )
+        else:
+            context['formset'] = DeliveryItemFormSet(
+                instance=self.object,
+                prefix='items'
+            )
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        formset = context['formset']
+
+        if formset.is_valid():
+            self.object = form.save()
+            formset.instance = self.object
+            formset.save()
+            self.object.save()
+            return redirect('deliveries_list')
+
+        return self.form_invalid(form)
 
 class DeliveryDeleteView(DeleteView):
     model = DeliveryAttributes

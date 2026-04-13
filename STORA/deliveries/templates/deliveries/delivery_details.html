@@ -1,37 +1,42 @@
 {% extends 'base.html' %}
 {% load currency_filters %}
+
 {% block content %}
 
-<h1>Details for Sale ID: {{ sale.id }} of {{ sale.time_of_sale | date:"d.m.Y H:i"}} </h1>
+<h1>Details for Delivery ID: {{ delivery.id }} of {{ delivery.time_of_delivery|date:"d.m.Y H:i" }}</h1>
 
- <table border="2">
+<table border="2">
+    <thead>
+        <tr>
+            <th>Product ID</th>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Price per unit</th>
+            <th>Total price</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in delivered_items %}
+        <tr>
+            <td>{{ item.delivery_item.id }}</td>
+            <td>{{ item.delivery_item.name }}</td>
+            <td>{{ item.delivery_quantity }}</td>
+            <td>{{ item.price_at_delivery }}</td>
+            <td>{{ item.total_price_row }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">No delivery items found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-  <thead>
-   <tr>
-    <th>Product ID</th>
-    <th>Product Name</th>
-    <th>Quantity</th>
-    <th>Price per unit</th>
-    <th>Total price</th>
-   </tr>
-  </thead>
+<h2 align="center">Total Amount: {{ delivery.total_amount|currency }}</h2>
 
-  <tbody>
-
-  {% for product in sold_items %}
-  <tr>
-    <td>{{ product.sale_item.id }}</td>
-    <td>{{ product.sale_item.name }}</td>
-    <td>{{ product.sale_quantity }}</td>
-    <td>{{ product.price_at_sale }}</td>
-    <td>{{ product.total_price_row }}</td>
-  </tr>
-  {% endfor %}
-  </tbody>
- </table>
-<h2 align="center">Total Amount: {{ sale.total_amount|currency }}</h2>
 <div>
-    <a href="{% url 'sale_delete' sale.pk %}" class="button_delete">DELETE</a>
+    <a href="{% url 'delivery_edit' delivery.pk %}" class="button_edit">EDIT</a>
+    <a href="{% url 'delivery_delete' delivery.pk %}" class="button_delete">DELETE</a>
 </div>
 
-{% endblock content%}
+{% endblock content %}

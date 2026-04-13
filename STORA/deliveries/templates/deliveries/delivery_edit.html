@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>New Delivery</h1>
+<h1>Edit Delivery ID: {{ delivery.id }}</h1>
 
 <form method="post">
     {% csrf_token %}
@@ -13,15 +13,13 @@
             {{ form.receiver }}
         </p>
         <p>
-            {{ form.time_of_delivery.label_tag }}
-            {{ form.time_of_delivery }}
-        </p>
-
-        <p>
             {{ form.supplier.label_tag }}
             {{ form.supplier }}
         </p>
-
+        <p>
+            {{ form.time_of_delivery.label_tag }}
+            {{ form.time_of_delivery }}
+        </p>
         <p>
             {{ form.document_type.label_tag }}
             {{ form.document_type }}
@@ -89,13 +87,13 @@
 
     <div style="margin-top: 15px;">
         <strong>Transaction Total:</strong>
-        <span id="transaction-total">0.00 eur</span>
+        <span id="transaction-total">{{ delivery.total_amount }} eur</span>
     </div>
 
     <div style="margin-top: 20px;">
         <button type="button" id="add-row-btn">+ Add row</button>
-        <button type="submit" class="button-save">Complete Delivery</button>
-        <a href="{% url 'deliveries_list' %}" class="button-cancel">Cancel</a>
+        <button type="submit" class="button-save">Update Delivery</button>
+        <a href="{% url 'delivery_details' delivery.pk %}" class="button-cancel">Cancel</a>
     </div>
 </form>
 
@@ -171,13 +169,8 @@
             recalculateRow(row);
         });
 
-        qtyInput.addEventListener('input', () => {
-            recalculateRow(row);
-        });
-
-        priceInput.addEventListener('input', () => {
-            recalculateRow(row);
-        });
+        qtyInput.addEventListener('input', () => recalculateRow(row));
+        priceInput.addEventListener('input', () => recalculateRow(row));
 
         const deleteCheckbox = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
         if (deleteCheckbox) {
