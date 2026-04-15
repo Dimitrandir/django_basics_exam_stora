@@ -1,204 +1,217 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Edit Delivery ID: {{ delivery.id }}</h1>
+<section class="delivery-form">
+    <header class="page-header">
+        <h1>Edit Delivery ID: {{ delivery.id }}</h1>
+    </header>
 
-<form method="post">
-    {% csrf_token %}
+    <form method="post" class="delivery-form__form">
+        {% csrf_token %}
 
-    <div style="margin-bottom: 20px; padding: 15px; background-color: #f9f9f9; border-radius: 8px;">
-        <h3>General Information</h3>
-        <p>
-            {{ form.receiver.label_tag }}
-            {{ form.receiver }}
-        </p>
-        <p>
-            {{ form.supplier.label_tag }}
-            {{ form.supplier }}
-        </p>
-        <p>
-            {{ form.time_of_delivery.label_tag }}
-            {{ form.time_of_delivery }}
-        </p>
-        <p>
-            {{ form.document_type.label_tag }}
-            {{ form.document_type }}
-        </p>
-        <p>
-            {{ form.document_number.label_tag }}
-            {{ form.document_number }}
-        </p>
-        <p>
-            {{ form.document_date.label_tag }}
-            {{ form.document_date }}
-        </p>
-    </div>
+        <section class="delivery-form__general">
+            <header class="section-header">
+                <h2>General Information</h2>
+            </header>
 
-    <div class="delivery-items">
-        <h3>Products</h3>
-        {{ formset.management_form }}
+            <div class="delivery-form__fields">
+                <p>
+                    {{ form.receiver.label_tag }}
+                    {{ form.receiver }}
+                </p>
+                <p>
+                    {{ form.supplier.label_tag }}
+                    {{ form.supplier }}
+                </p>
+                <p>
+                    {{ form.time_of_delivery.label_tag }}
+                    {{ form.time_of_delivery }}
+                </p>
+                <p>
+                    {{ form.document_type.label_tag }}
+                    {{ form.document_type }}
+                </p>
+                <p>
+                    {{ form.document_number.label_tag }}
+                    {{ form.document_number }}
+                </p>
+                <p>
+                    {{ form.document_date.label_tag }}
+                    {{ form.document_date }}
+                </p>
+            </div>
+        </section>
 
-        <table border="1" style="width: 100%; border-collapse: collapse;">
-            <thead>
-                <tr style="background-color: #eee;">
-                    <th>Code / Barcode</th>
-                    <th>Product Name</th>
-                    <th>Qty</th>
-                    <th>Unit Price</th>
-                    <th>Line Total</th>
-                    <th>Remove</th>
+        <section class="delivery-form__items">
+            <header class="section-header">
+                <h2>Products</h2>
+            </header>
+
+            {{ formset.management_form }}
+
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Code / Barcode</th>
+                            <th>Product Name</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th>Line Total</th>
+                            <th>Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody id="delivery-items-body">
+                        {% for s_form in formset %}
+                            <tr class="delivery-row">
+                                <td>
+                                    {{ s_form.product_code }}
+                                    {{ s_form.delivery_item }}
+                                </td>
+                                <td>{{ s_form.product_name }}</td>
+                                <td>{{ s_form.delivery_quantity }}</td>
+                                <td>{{ s_form.delivery_price }}</td>
+                                <td>{{ s_form.line_total }}</td>
+                                <td>{{ s_form.DELETE }}</td>
+                                {{ s_form.price_at_delivery }}
+                                {{ s_form.total_price_row }}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <template id="empty-form-template">
+                <tr class="delivery-row">
+                    <td>
+                        {{ formset.empty_form.product_code }}
+                        {{ formset.empty_form.delivery_item }}
+                    </td>
+                    <td>{{ formset.empty_form.product_name }}</td>
+                    <td>{{ formset.empty_form.delivery_quantity }}</td>
+                    <td>{{ formset.empty_form.delivery_price }}</td>
+                    <td>{{ formset.empty_form.line_total }}</td>
+                    <td>{{ formset.empty_form.DELETE }}</td>
+                    {{ formset.empty_form.price_at_delivery }}
+                    {{ formset.empty_form.total_price_row }}
                 </tr>
-            </thead>
-            <tbody id="delivery-items-body">
-                {% for s_form in formset %}
-                    <tr class="delivery-row">
-                        <td>
-                            {{ s_form.product_code }}
-                            {{ s_form.delivery_item }}
-                        </td>
-                        <td>{{ s_form.product_name }}</td>
-                        <td>{{ s_form.delivery_quantity }}</td>
-                        <td>{{ s_form.delivery_price }}</td>
-                        <td>{{ s_form.line_total }}</td>
-                        <td>{{ s_form.DELETE }}</td>
-                        {{ s_form.price_at_delivery }}
-                        {{ s_form.total_price_row }}
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+            </template>
+        </section>
 
-        <template id="empty-form-template">
-            <tr class="delivery-row">
-                <td>
-                    {{ formset.empty_form.product_code }}
-                    {{ formset.empty_form.delivery_item }}
-                </td>
-                <td>{{ formset.empty_form.product_name }}</td>
-                <td>{{ formset.empty_form.delivery_quantity }}</td>
-                <td>{{ formset.empty_form.delivery_price }}</td>
-                <td>{{ formset.empty_form.line_total }}</td>
-                <td>{{ formset.empty_form.DELETE }}</td>
-                {{ formset.empty_form.price_at_delivery }}
-                {{ formset.empty_form.total_price_row }}
-            </tr>
-        </template>
-    </div>
+        <section class="delivery-form__total">
+            <strong>Transaction Total:</strong>
+            <span id="transaction-total">{{ delivery.total_amount }} eur</span>
+        </section>
 
-    <div style="margin-top: 15px;">
-        <strong>Transaction Total:</strong>
-        <span id="transaction-total">{{ delivery.total_amount }} eur</span>
-    </div>
+        <footer class="page-actions">
+            <button type="button" id="add-row-btn">+ Add row</button>
+            <button type="submit" class="button-save">Update Delivery</button>
+            <a href="{% url 'delivery_details' delivery.pk %}" class="button-cancel">Cancel</a>
+        </footer>
+    </form>
 
-    <div style="margin-top: 20px;">
-        <button type="button" id="add-row-btn">+ Add row</button>
-        <button type="submit" class="button-save">Update Delivery</button>
-        <a href="{% url 'delivery_details' delivery.pk %}" class="button-cancel">Cancel</a>
-    </div>
-</form>
+    {{ products_data|json_script:"products-data" }}
+    {{ barcodes_data|json_script:"barcodes-data" }}
 
-{{ products_data|json_script:"products-data" }}
-{{ barcodes_data|json_script:"barcodes-data" }}
+    <script>
+        const productsData = JSON.parse(document.getElementById('products-data').textContent);
+        const barcodesData = JSON.parse(document.getElementById('barcodes-data').textContent);
+        const formPrefix = "{{ formset_prefix }}";
 
-<script>
-    const productsData = JSON.parse(document.getElementById('products-data').textContent);
-    const barcodesData = JSON.parse(document.getElementById('barcodes-data').textContent);
-    const formPrefix = "{{ formset_prefix }}";
+        function findProductByCode(code) {
+            const cleanCode = code.trim();
 
-    function findProductByCode(code) {
-        const cleanCode = code.trim();
+            const byInternalCode = productsData.find(p => p.internal_code === cleanCode);
+            if (byInternalCode) return byInternalCode;
 
-        const byInternalCode = productsData.find(p => p.internal_code === cleanCode);
-        if (byInternalCode) return byInternalCode;
-
-        const barcodeMatch = barcodesData.find(b => b.code === cleanCode);
-        if (barcodeMatch) {
-            return productsData.find(p => p.id === barcodeMatch.product_id);
+            const barcodeMatch = barcodesData.find(b => b.code === cleanCode);
+            if (barcodeMatch) {
+                return productsData.find(p => p.id === barcodeMatch.product_id);
+            }
+            return null;
         }
-        return null;
-    }
 
-    function updateTransactionTotal() {
-        let total = 0;
+        function updateTransactionTotal() {
+            let total = 0;
 
-        document.querySelectorAll('.delivery-row').forEach(row => {
-            if (row.style.display !== 'none') {
-                const lineTotalInput = row.querySelector('.line-total-input');
-                total += parseFloat(lineTotalInput.value || 0);
-            }
-        });
-
-        document.getElementById('transaction-total').textContent = total.toFixed(2) + " eur";
-    }
-
-    function recalculateRow(row) {
-        const qtyInput = row.querySelector('.quantity-input');
-        const unitPriceInput = row.querySelector('.unit-price-input');
-        const lineTotalInput = row.querySelector('.line-total-input');
-        const priceHidden = row.querySelector('input[name$="-price_at_delivery"]');
-        const totalHidden = row.querySelector('input[name$="-total_price_row"]');
-
-        const qty = parseFloat(qtyInput.value || 0);
-        const price = parseFloat(unitPriceInput.value || 0);
-        const total = qty * price;
-
-        lineTotalInput.value = total.toFixed(2);
-        priceHidden.value = price.toFixed(2);
-        totalHidden.value = total.toFixed(2);
-        updateTransactionTotal();
-    }
-
-    function bindRow(row) {
-        const codeInput = row.querySelector('.product-code-input');
-        const qtyInput = row.querySelector('.quantity-input');
-        const itemInput = row.querySelector('input[name$="-delivery_item"]');
-        const nameInput = row.querySelector('.product-name-input');
-        const priceInput = row.querySelector('.unit-price-input');
-
-        codeInput.addEventListener('change', () => {
-            const product = findProductByCode(codeInput.value);
-
-            if (!product) {
-                alert('Product not found');
-                return;
-            }
-
-            itemInput.value = product.id;
-            nameInput.value = product.name;
-            priceInput.value = product.delivery_price;
-            recalculateRow(row);
-        });
-
-        qtyInput.addEventListener('input', () => recalculateRow(row));
-        priceInput.addEventListener('input', () => recalculateRow(row));
-
-        const deleteCheckbox = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
-        if (deleteCheckbox) {
-            deleteCheckbox.addEventListener('change', () => {
-                row.style.display = deleteCheckbox.checked ? 'none' : '';
-                updateTransactionTotal();
+            document.querySelectorAll('.delivery-row').forEach(row => {
+                if (row.style.display !== 'none') {
+                    const lineTotalInput = row.querySelector('.line-total-input');
+                    total += parseFloat(lineTotalInput.value || 0);
+                }
             });
+
+            document.getElementById('transaction-total').textContent = total.toFixed(2) + " eur";
         }
-    }
 
-    document.querySelectorAll('.delivery-row').forEach(bindRow);
+        function recalculateRow(row) {
+            const qtyInput = row.querySelector('.quantity-input');
+            const unitPriceInput = row.querySelector('.unit-price-input');
+            const lineTotalInput = row.querySelector('.line-total-input');
+            const priceHidden = row.querySelector('input[name$="-price_at_delivery"]');
+            const totalHidden = row.querySelector('input[name$="-total_price_row"]');
 
-    document.getElementById('add-row-btn').addEventListener('click', () => {
-        const body = document.getElementById('delivery-items-body');
-        const totalFormsInput = document.getElementById(`id_${formPrefix}-TOTAL_FORMS`);
-        const formCount = parseInt(totalFormsInput.value);
+            const qty = parseFloat(qtyInput.value || 0);
+            const price = parseFloat(unitPriceInput.value || 0);
+            const total = qty * price;
 
-        const template = document.getElementById('empty-form-template').innerHTML;
-        const newRowHtml = template.replaceAll('__prefix__', formCount);
+            lineTotalInput.value = total.toFixed(2);
+            priceHidden.value = price.toFixed(2);
+            totalHidden.value = total.toFixed(2);
+            updateTransactionTotal();
+        }
 
-        body.insertAdjacentHTML('beforeend', newRowHtml);
-        totalFormsInput.value = formCount + 1;
+        function bindRow(row) {
+            const codeInput = row.querySelector('.product-code-input');
+            const qtyInput = row.querySelector('.quantity-input');
+            const itemInput = row.querySelector('input[name$="-delivery_item"]');
+            const nameInput = row.querySelector('.product-name-input');
+            const priceInput = row.querySelector('.unit-price-input');
 
-        const newRow = body.lastElementChild;
-        bindRow(newRow);
-    });
+            codeInput.addEventListener('change', () => {
+                const product = findProductByCode(codeInput.value);
 
-    updateTransactionTotal();
-</script>
+                if (!product) {
+                    alert('Product not found');
+                    return;
+                }
 
+                itemInput.value = product.id;
+                nameInput.value = product.name;
+                priceInput.value = product.delivery_price;
+                recalculateRow(row);
+            });
+
+            qtyInput.addEventListener('input', () => recalculateRow(row));
+            priceInput.addEventListener('input', () => recalculateRow(row));
+
+            const deleteCheckbox = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+            if (deleteCheckbox) {
+                deleteCheckbox.addEventListener('change', () => {
+                    row.style.display = deleteCheckbox.checked ? 'none' : '';
+                    updateTransactionTotal();
+                });
+            }
+        }
+
+        document.querySelectorAll('.delivery-row').forEach(bindRow);
+
+        document.getElementById('add-row-btn').addEventListener('click', () => {
+            const body = document.getElementById('delivery-items-body');
+            const totalFormsInput = document.getElementById(`id_${formPrefix}-TOTAL_FORMS`);
+            const formCount = parseInt(totalFormsInput.value);
+
+            const template = document.getElementById('empty-form-template').innerHTML;
+            const newRowHtml = template.replaceAll('__prefix__', formCount);
+
+            body.insertAdjacentHTML('beforeend', newRowHtml);
+            totalFormsInput.value = formCount + 1;
+
+            const newRow = body.lastElementChild;
+            bindRow(newRow);
+        });
+
+        updateTransactionTotal();
+    </script>
+</section>
 {% endblock %}

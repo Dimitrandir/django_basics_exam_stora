@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="reports-dashboard">
+    <header class="page-header">
+        <h1>Reports Dashboard</h1>
+    </header>
+
+    <section class="report-filter">
+        <form method="get">
+            <fieldset class="report-filter__fieldset">
+                <legend>Choose period</legend>
+
+                <div class="report-filter__fields">
+                    <div class="report-filter__field">
+                        {{ form.start_date.label_tag }}
+                        {{ form.start_date }}
+                    </div>
+
+                    <div class="report-filter__field">
+                        {{ form.end_date.label_tag }}
+                        {{ form.end_date }}
+                    </div>
+                </div>
+
+                <div class="report-filter__actions">
+                    <button type="submit">Show report</button>
+                </div>
+            </fieldset>
+        </form>
+    </section>
+
+    <section class="report-summary">
+        <div class="report-summary__grid">
+            <article class="report-card report-card--sales-count">
+                <h3>Sales Count</h3>
+                <p class="report-card__value">{{ total_sales_count }}</p>
+            </article>
+
+            <article class="report-card report-card--sales-amount">
+                <h3>Sales Amount</h3>
+                <p class="report-card__value">{{ total_sales_amount }}</p>
+            </article>
+
+            <article class="report-card report-card--deliveries-count">
+                <h3>Deliveries Count</h3>
+                <p class="report-card__value">{{ total_deliveries_count }}</p>
+            </article>
+
+            <article class="report-card report-card--deliveries-amount">
+                <h3>Deliveries Amount</h3>
+                <p class="report-card__value">{{ total_deliveries_amount }}</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="report-section">
+        <header class="section-header">
+            <h2>Low Stock Products</h2>
+        </header>
+
+        <div class="report-table-wrapper">
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in low_stock_products %}
+                    <tr>
+                        <td>{{ product.internal_code }}</td>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.quantity }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3">No low stock products found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <footer class="report-actions">
+        <a href="{% url 'sales_report' %}" class="report-link">Sales report</a>
+        <a href="{% url 'deliveries_report' %}" class="report-link">Deliveries report</a>
+    </footer>
+</section>
+{% endblock %}

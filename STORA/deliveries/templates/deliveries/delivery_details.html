@@ -2,41 +2,65 @@
 {% load currency_filters %}
 
 {% block content %}
+<section class="delivery-details">
+    <header class="page-header">
+        <h1>Details for Delivery ID: {{ delivery.id }}</h1>
+        <p class="page-subtitle">{{ delivery.time_of_delivery|date:"d.m.Y H:i" }}</p>
+    </header>
 
-<h1>Details for Delivery ID: {{ delivery.id }} of {{ delivery.time_of_delivery|date:"d.m.Y H:i" }}</h1>
+    <section class="delivery-summary">
+        <div class="summary-item">
+            <strong>Supplier:</strong>
+            <span>{{ delivery.supplier }}</span>
+        </div>
+        <div class="summary-item">
+            <strong>Receiver:</strong>
+            <span>{{ delivery.receiver }}</span>
+        </div>
+        <div class="summary-item">
+            <strong>Total Amount:</strong>
+            <span>{{ delivery.total_amount|currency }}</span>
+        </div>
+    </section>
 
-<table border="2">
-    <thead>
-        <tr>
-            <th>Product ID</th>
-            <th>Product Name</th>
-            <th>Quantity</th>
-            <th>Price per unit</th>
-            <th>Total price</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in delivered_items %}
-        <tr>
-            <td>{{ item.delivery_item.id }}</td>
-            <td>{{ item.delivery_item.name }}</td>
-            <td>{{ item.delivery_quantity }}</td>
-            <td>{{ item.price_at_delivery }}</td>
-            <td>{{ item.total_price_row }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="5">No delivery items found.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <section class="delivery-items">
+        <header class="section-header">
+            <h2>Delivery Items</h2>
+        </header>
 
-<h2 align="center">Total Amount: {{ delivery.total_amount|currency }}</h2>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Product ID</th>
+                        <th>Product Name</th>
+                        <th>Quantity</th>
+                        <th>Price per unit</th>
+                        <th>Total price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in delivered_items %}
+                    <tr>
+                        <td>{{ item.delivery_item.id }}</td>
+                        <td>{{ item.delivery_item.name }}</td>
+                        <td>{{ item.delivery_quantity }}</td>
+                        <td>{{ item.price_at_delivery }}</td>
+                        <td>{{ item.total_price_row }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5">No delivery items found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
 
-<div>
-    <a href="{% url 'delivery_edit' delivery.pk %}" class="button_edit">EDIT</a>
-    <a href="{% url 'delivery_delete' delivery.pk %}" class="button_delete">DELETE</a>
-</div>
-
+    <footer class="page-actions">
+        <a href="{% url 'delivery_edit' delivery.pk %}" class="button_edit">EDIT</a>
+        <a href="{% url 'delivery_delete' delivery.pk %}" class="button_delete">DELETE</a>
+    </footer>
+</section>
 {% endblock content %}

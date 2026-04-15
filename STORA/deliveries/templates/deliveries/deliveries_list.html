@@ -1,34 +1,46 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<section class="deliveries-list">
+    <header class="page-header">
+        <h1>Deliveries List</h1>
+    </header>
 
-<h1>Deliveries List</h1>
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Supplier</th>
-            <th>Document Type</th>
-            <th>Delivery Time</th>
-            <th>Total Amount</th>
-            <th><a href="{% url 'delivery_add' %}" class="add-btn-table" title="New Sale">+</a></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for delivery in deliveries%}
-        <tr>
-            <td>{{ delivery.id }}</td>
-            <td>{{ delivery.supplier }}</td>
-            <td>{{ delivery.document_type }}</td>
-            <td>{{ delivery.time_of_delivery|date:"d.m.Y H:i" }}</td>
-            <td>{{ delivery.total_amount }}</td>
-            <td><a href="{% url 'delivery_details' delivery.pk %}">View</a></td>
-        </tr>
-        <tr>
-            {% empty %}
-        </tr>
-{% endfor %}
-</tbody>
-</table>
+    <section class="list-actions">
+        <a href="{% url 'delivery_add' %}" class="add-btn-table" title="New Delivery">+ New Delivery</a>
+    </section>
 
+    <section class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Supplier</th>
+                    <th>Document Type</th>
+                    <th>Delivery Time</th>
+                    <th>Total Amount</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for delivery in deliveries %}
+                <tr>
+                    <td>{{ delivery.id }}</td>
+                    <td>{{ delivery.supplier }}</td>
+                    <td>{{ delivery.document_type }}</td>
+                    <td>{{ delivery.time_of_delivery|date:"d.m.Y H:i" }}</td>
+                    <td>{{ delivery.total_amount }}</td>
+                    <td>
+                        <a href="{% url 'delivery_details' delivery.pk %}">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">No deliveries found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</section>
 {% endblock %}

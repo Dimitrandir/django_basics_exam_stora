@@ -26,7 +26,7 @@ urlpatterns = [
     path('accounts/', include('STORA.accounts.urls')),
     path('sales/', include('STORA.sales.urls')),
     path('deliveries/', include('STORA.deliveries.urls')),
-    path('sales/', include('STORA.sales.urls')),
+    path('reports/', include('STORA.reports.urls')),
 
 ]
 

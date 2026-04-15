@@ -59,48 +59,41 @@ class DeliveryListView(ListView):
     template_name = 'deliveries/deliveries_list.html'
     context_object_name = 'deliveries'
 
-class DeliveryUpdateView(UpdateView):
-    model = DeliveryAttributes
-    form_class = DeliveryForms
-    template_name = 'deliveries/delivery_edit.html'
-    context_object_name = 'delivery'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['formset_prefix'] = 'items'
-        context['products_data'] = list(
-            Product.objects.values('id', 'internal_code', 'name', 'delivery_price')
-        )
-        context['barcodes_data'] = list(
-            Barcode.objects.values('code', 'product_id')
-        )
+def delivery_edit(request, pk):
+    delivery = get_object_or_404(DeliveryAttributes, pk=pk)
 
-        if self.request.POST:
-            context['formset'] = DeliveryItemFormSet(
-                self.request.POST,
-                instance=self.object,
-                prefix='items'
-            )
-        else:
-            context['formset'] = DeliveryItemFormSet(
-                instance=self.object,
-                prefix='items'
-            )
-        return context
+    products_data = list(
+        Product.objects.values('id', 'internal_code', 'name', 'delivery_price')
+    )
+    barcodes_data = list(
+        Barcode.objects.values('code', 'product_id')
+    )
 
-    def form_valid(self, form):
-        context = self.get_context_data()
-        formset = context['formset']
+    formset_prefix = 'items'
 
-        if formset.is_valid():
-            self.object = form.save()
-            formset.instance = self.object
+    if request.method == "POST":
+        form = DeliveryForms(request.POST, instance=delivery)
+        formset = DeliveryItemFormSet(request.POST, instance=delivery, prefix=formset_prefix)
+
+        if form.is_valid() and formset.is_valid():
+            form.save()
             formset.save()
-            self.object.save()
-            return redirect('deliveries_list')
+            delivery.save()
+            return redirect('delivery_details', pk=delivery.pk)
+    else:
+        form = DeliveryForms(instance=delivery)
+        formset = DeliveryItemFormSet(instance=delivery, prefix=formset_prefix)
 
-        return self.form_invalid(form)
-
+    context = {
+        'delivery': delivery,
+        'form': form,
+        'formset': formset,
+        'formset_prefix': formset_prefix,
+        'products_data': products_data,
+        'barcodes_data': barcodes_data,
+    }
+    return render(request, 'deliveries/delivery_edit.html', context)
 class DeliveryDeleteView(DeleteView):
     model = DeliveryAttributes
     template_name = 'deliveries/delivery_confirm_delete.html'

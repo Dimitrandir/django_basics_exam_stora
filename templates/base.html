@@ -3,34 +3,39 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Stora System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STORA System</title>
     <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
 <body>
-    <nav>
-        <a href="{% url 'index' %}">🏠 Home</a>
-        <a href="{% url 'product_list' %}">📦 Products</a>
-        <a href="{% url 'category_list' %}">🏷️ Categories</a>
-        <a href="{% url 'suppliers_list' %}">🚚 Suppliers</a>
-        <a href="{% url 'employee_list' %}">👥 Employees</a>
-        <a href="{% url 'sales_list' %}">💰 Sales</a>
+    <header class="site-header">
+        <nav class="site-nav">
+            <a href="{% url 'index' %}">Home</a>
+            <a href="{% url 'product_list' %}">Products</a>
+            <a href="{% url 'category_list' %}">Categories</a>
+            <a href="{% url 'suppliers_list' %}">Suppliers</a>
+            <a href="{% url 'deliveries_list' %}">Deliveries</a>
+            <a href="{% url 'sales_list' %}">Sales</a>
+            <a href="{% url 'reports_dashboard' %}">Reports</a>
+            <a href="{% url 'employee_list' %}">Employees</a>
 
-        {% if user.is_authenticated %}
-           <form method="post" action="{% url 'logout' %}" style="display: inline;">
-                {% csrf_token %}
-                <button type="submit">Logout {{ user.username }}</button>
-           </form>
-        {% else %}
-            <a href="{% url 'login' %}">Login</a>
-        {% endif %}
-    </nav>
+            {% if user.is_authenticated %}
+                <form method="post" action="{% url 'logout' %}" class="logout-form">
+                    {% csrf_token %}
+                    <button type="submit">Logout {{ user.username }}</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+            {% endif %}
+        </nav>
+    </header>
 
-    <main>
+    <main class="site-main">
         {% block content %}
         {% endblock content %}
     </main>
 
-    <footer style="text-align: center; margin-top: 50px; color: #7f8c8d;">
+    <footer class="site-footer">
         <p>&copy; 2026 STORA Inventory System</p>
     </footer>
 </body>

@@ -117,7 +117,7 @@ class SupplierUpdateView(UpdateView):
 class SupplierDeleteView(DeleteView):
     model = Suppliers
     template_name = 'products/suppliers_confirm_delete.html'
-    success_url = reverse_lazy('suppliers__list')
+    success_url = reverse_lazy('suppliers_list')
 
 def index(request):
     total_products = Product.objects.count()

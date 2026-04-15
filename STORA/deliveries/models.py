@@ -52,12 +52,12 @@ class DeliveryItems(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.price_at_delivery:
-            self.price_at_sale = self.delivery_item.sell_price
+            self.price_at_delivery = self.delivery_item.delivery_price
         tpr = self.delivery_quantity * self.price_at_delivery
         self.total_price_row = tpr
-        self.delivery_item.quantity -= self.delivery_quantity
+        self.delivery_item.quantity += self.delivery_quantity
+        self.delivery_item.save()
         super().save(*args, **kwargs)
-
 
 
     class Meta:

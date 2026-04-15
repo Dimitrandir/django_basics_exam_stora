@@ -65,6 +65,16 @@ class DeliveryItemForm(forms.ModelForm):
             'total_price_row': forms.HiddenInput(),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        instance = self.instance
+        if instance and instance.pk and instance.delivery_item_id:
+            self.fields['product_code'].initial = instance.delivery_item.internal_code
+            self.fields['product_name'].initial = instance.delivery_item.name
+            self.fields['delivery_price'].initial = instance.price_at_delivery
+            self.fields['line_total'].initial = instance.total_price_row
+
 
 DeliveryItemFormSet = inlineformset_factory(
     DeliveryAttributes,

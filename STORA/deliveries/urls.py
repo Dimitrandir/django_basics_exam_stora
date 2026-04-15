@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import DeliveryListView, DeliveryDeleteView, DeliveryDetailView
+from .views import DeliveryListView, DeliveryDeleteView, DeliveryDetailView, delivery_edit
 
 urlpatterns = [
     path('', DeliveryListView.as_view(), name='deliveries_list'),
