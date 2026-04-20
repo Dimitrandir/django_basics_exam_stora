@@ -2,7 +2,23 @@
 {% load currency_filters %}
 
 {% block content %}
-<h1>Warehouse Dashboard</h1>
+<h1>Dashboard</h1>
+
+{% if last_operation %}
+    <section class="session-notice">
+        <p>
+            You have an unfinished
+            {% if last_operation.type == 'sale' %}
+                sale
+            {% elif last_operation.type == 'delivery' %}
+                delivery
+            {% endif %}
+            operation.
+        </p>
+
+        <a href="{{ last_operation.path }}">Resume operation</a>
+    </section>
+{% endif %}
 
 <div style="display: flex; gap: 20px; margin-bottom: 30px;">
     <div style="flex: 1; padding: 20px; background: #3498db; color: white; border-radius: 8px;">

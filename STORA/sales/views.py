@@ -1,24 +1,51 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, DeleteView
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 
+import json
+
+from STORA.core.session_service import (
+    clear_cashier_operation_state,
+    extract_formset_state,
+    get_cashier_operation_state,
+    set_cashier_operation_state,
+)
+from STORA.core.utils import build_cashier_operation_state, build_restore_formset_data
+from STORA.products.models import Product, Barcode
 from STORA.sales.forms import SaleForms, SaleItemFormSet
 from STORA.sales.models import SaleAttributes
-from STORA.products.models import Product, Barcode
+
+
+def _build_restore_formset_data(formset_prefix: str, formset_initial: list[dict]) -> dict:
+    restore_post_data = {
+        f'{formset_prefix}-TOTAL_FORMS': str(len(formset_initial)),
+        f'{formset_prefix}-INITIAL_FORMS': '0',
+        f'{formset_prefix}-MIN_NUM_FORMS': '0',
+        f'{formset_prefix}-MAX_NUM_FORMS': '1000',
+    }
+
+    for index, row in enumerate(formset_initial):
+        for field_name, value in row.items():
+            restore_post_data[f'{formset_prefix}-{index}-{field_name}'] = value
+
+    return restore_post_data
+
 
 def sales_add(request):
-    products_data = list(
-        Product.objects.values('id', 'internal_code', 'name', 'sell_price')
-    )
-    barcodes_data = list(
-        Barcode.objects.values('code', 'product_id')
-    )
+    products_data = list(Product.objects.values('id', 'internal_code', 'name', 'sell_price'))
+    barcodes_data = list(Barcode.objects.values('code', 'product_id'))
 
     formset_prefix = 'items'
+    state = get_cashier_operation_state(request)
+    sale_draft = None
+    formset_initial = []
+    sale_instance = SaleAttributes(cashier=request.user)
 
     if request.method == "POST":
         form = SaleForms(request.POST, current_user=request.user)
-        formset = SaleItemFormSet(request.POST, prefix=formset_prefix)
+        formset = SaleItemFormSet(request.POST, instance=sale_instance, prefix=formset_prefix)
 
         if form.is_valid() and formset.is_valid():
             sale = form.save(commit=False)
@@ -28,12 +55,46 @@ def sales_add(request):
             formset.instance = sale
             formset.save()
             sale.save()
+
+            clear_cashier_operation_state(request)
             return redirect('sales_list')
 
+        extracted_state = extract_formset_state(request.POST, formset_prefix)
+        sale_draft = build_cashier_operation_state(
+            operation_type='sale',
+            path=request.path,
+            data={
+                'cashier_id': request.user.pk,
+                'cashier_username': request.user.username,
+            },
+            formset_data=extracted_state,
+            active=True,
+        )
+        set_cashier_operation_state(request, sale_draft)
 
+        form = SaleForms(request.POST, current_user=request.user)
+        formset_initial = extracted_state.get('forms', [])
+        formset = SaleItemFormSet(
+            request.POST,
+            instance=sale_instance,
+            prefix=formset_prefix,
+            initial=formset_initial,
+        )
     else:
-        form = SaleForms(current_user=request.user)
-        formset = SaleItemFormSet(prefix=formset_prefix)
+        if state and state.get('type') == 'sale' and state.get('active'):
+            form = SaleForms(current_user=request.user)
+            formset_initial = state.get('formset_data', {}).get('forms', []) or [{}]
+            restore_post_data = build_restore_formset_data(formset_prefix, formset_initial)
+
+            formset = SaleItemFormSet(
+                data=restore_post_data,
+                instance=sale_instance,
+                prefix=formset_prefix,
+            )
+            sale_draft = state
+        else:
+            form = SaleForms(current_user=request.user)
+            formset = SaleItemFormSet(instance=sale_instance, prefix=formset_prefix)
 
     context = {
         'form': form,
@@ -41,6 +102,8 @@ def sales_add(request):
         'formset_prefix': formset_prefix,
         'products_data': products_data,
         'barcodes_data': barcodes_data,
+        'sale_draft': sale_draft,
+        'sale_formset_initial_count': len(formset_initial) if formset_initial else 0,
     }
     return render(request, 'sales/sale_add.html', context)
 
@@ -55,13 +118,32 @@ class SalesDetailView(DetailView):
         context['sold_items'] = self.object.items.all()
         return context
 
+
 class SalesListView(ListView):
     model = SaleAttributes
     template_name = 'sales/sales_list.html'
     context_object_name = 'sales'
+
 
 class SalesDeleteView(DeleteView):
     model = SaleAttributes
     template_name = 'sales/sale_confirm_delete.html'
     context_object_name = 'sale'
     success_url = reverse_lazy('sales_list')
+
+
+@require_POST
+def sales_draft_save(request):
+    payload = json.loads(request.body.decode('utf-8'))
+    form_data = payload.get('form_data', {})
+    formset_data = payload.get('formset_data', {})
+
+    draft = build_cashier_operation_state(
+        operation_type='sale',
+        path='/sales/add/',
+        data=form_data,
+        formset_data=formset_data,
+        active=True,
+    )
+    set_cashier_operation_state(request, draft)
+    return JsonResponse({'status': 'ok'})

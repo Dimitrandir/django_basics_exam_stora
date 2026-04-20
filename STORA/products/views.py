@@ -6,6 +6,8 @@ from STORA.products.models import Product, Barcode, Category, Suppliers
 from STORA.products.forms import ProductForms, CategoryForm, SuppliersForm, BarcodeFormSet
 from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView
 
+from STORA.core.session_service import get_cashier_operation_state
+
 class ProductListView(ListView):
     model = Product
     template_name = 'products/products_list.html'
@@ -119,18 +121,24 @@ class SupplierDeleteView(DeleteView):
     template_name = 'products/suppliers_confirm_delete.html'
     success_url = reverse_lazy('suppliers_list')
 
+def get_cashier_operation_from_session(request):
+    return request.session.get('cashier_last_operation')
+
+
 def index(request):
     total_products = Product.objects.count()
     total_sales_count = SaleAttributes.objects.count()
     total_revenue = SaleAttributes.objects.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
 
     recent_sales = SaleAttributes.objects.order_by('-time_of_sale')[:5]
+    last_operation = get_cashier_operation_state(request)
 
     context = {
         'total_products': total_products,
         'total_sales_count': total_sales_count,
         'total_revenue': total_revenue,
         'recent_sales': recent_sales,
+        'last_operation': last_operation if last_operation and last_operation.get('active') else None,
     }
     return render(request, 'index.html', context)
 

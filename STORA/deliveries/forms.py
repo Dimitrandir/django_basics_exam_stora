@@ -6,9 +6,15 @@ from STORA.deliveries.models import DeliveryAttributes, DeliveryItems
 class DeliveryForms(forms.ModelForm):
     class Meta:
         model = DeliveryAttributes
-        fields = ['receiver', 'supplier' , 'time_of_delivery', 'document_type', 'document_number', 'document_date']
-        labels = {'receiver': 'Receiver', 'time_of_delivery': 'Delivery Date', 'document_type': 'Document Type',
-                  'document_number': 'Document Number', 'document_date': 'Document Date', 'supplier': 'Supplier'}
+        fields = ['receiver', 'supplier', 'time_of_delivery', 'document_type', 'document_number', 'document_date']
+        labels = {
+            'receiver': 'Receiver',
+            'time_of_delivery': 'Delivery Date',
+            'document_type': 'Document Type',
+            'document_number': 'Document Number',
+            'document_date': 'Document Date',
+            'supplier': 'Supplier'
+        }
         widgets = {'document_date': forms.DateInput(attrs={'type': 'date'})}
 
     def __init__(self, *args, current_user=None, **kwargs):
@@ -67,19 +73,39 @@ class DeliveryItemForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['delivery_quantity'].required = True
+        self.fields['delivery_item'].required = True
 
-        instance = self.instance
-        if instance and instance.pk and instance.delivery_item_id:
-            self.fields['product_code'].initial = instance.delivery_item.internal_code
-            self.fields['product_name'].initial = instance.delivery_item.name
-            self.fields['delivery_price'].initial = instance.price_at_delivery
-            self.fields['line_total'].initial = instance.total_price_row
+
+class BaseDeliveryItemFormSet(forms.BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+
+        has_valid_item = False
+
+        for form in self.forms:
+            if not hasattr(form, 'cleaned_data'):
+                continue
+
+            if form.cleaned_data.get('DELETE'):
+                continue
+
+            delivery_item = form.cleaned_data.get('delivery_item')
+            delivery_quantity = form.cleaned_data.get('delivery_quantity')
+
+            if delivery_item and delivery_quantity:
+                has_valid_item = True
+                break
+
+        if not has_valid_item:
+            raise forms.ValidationError('You must add at least one delivery item.')
 
 
 DeliveryItemFormSet = inlineformset_factory(
     DeliveryAttributes,
     DeliveryItems,
     form=DeliveryItemForm,
+    formset=BaseDeliveryItemFormSet,
     extra=1,
     can_delete=True,
 )

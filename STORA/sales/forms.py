@@ -58,11 +58,41 @@ class SaleItemForm(forms.ModelForm):
             'total_price_row': forms.HiddenInput(),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['sale_quantity'].required = True
+        self.fields['sale_item'].required = True
+
+
+class BaseSaleItemFormSet(forms.BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+
+        has_valid_item = False
+
+        for form in self.forms:
+            if not hasattr(form, 'cleaned_data'):
+                continue
+
+            if form.cleaned_data.get('DELETE'):
+                continue
+
+            sale_item = form.cleaned_data.get('sale_item')
+            sale_quantity = form.cleaned_data.get('sale_quantity')
+
+            if sale_item and sale_quantity:
+                has_valid_item = True
+                break
+
+        if not has_valid_item:
+            raise forms.ValidationError('You must add at least one sale item.')
+
 
 SaleItemFormSet = inlineformset_factory(
     SaleAttributes,
     SaleItems,
     form=SaleItemForm,
+    formset=BaseSaleItemFormSet,
     extra=1,
     can_delete=True,
 )

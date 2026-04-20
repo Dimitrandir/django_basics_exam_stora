@@ -1,23 +1,7 @@
-"""
-URL configuration for STORA project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/6.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path, include
 from STORA.products.views import (index, custom_404)
-
+from STORA.core.views import clear_cashier_operation
 
 urlpatterns = [
     path('', index, name='index'),
@@ -27,7 +11,7 @@ urlpatterns = [
     path('sales/', include('STORA.sales.urls')),
     path('deliveries/', include('STORA.deliveries.urls')),
     path('reports/', include('STORA.reports.urls')),
-
+    path('core/clear-operation/', clear_cashier_operation, name='clear_cashier_operation'),
 ]
 
 handler404 = 'STORA.products.views.custom_404'

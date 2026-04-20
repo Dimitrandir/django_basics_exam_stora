@@ -1,185 +1,338 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>New Sale</h1>
+<section class="sale-form">
+    <header class="page-header">
+        <h1>New Sale</h1>
+    </header>
 
-<form method="post">
-    {% csrf_token %}
+    {% if form.errors %}
+        <div class="form-errors">
+            {{ form.errors }}
+        </div>
+    {% endif %}
 
-    <div style="margin-bottom: 20px; padding: 15px; background-color: #f9f9f9; border-radius: 8px;">
-        <h3>General Information</h3>
-        <p>
-            {{ form.cashier.label_tag }}
-            {{ form.cashier }}
-        </p>
-    </div>
+    {% if formset.non_form_errors %}
+        <div class="form-errors">
+            {{ formset.non_form_errors }}
+        </div>
+    {% endif %}
 
-    <div class="sale-items">
-        <h3>Products</h3>
-        {{ formset.management_form }}
+    <form method="post" class="sale-form__form">
+        {% csrf_token %}
 
-        <table border="1" style="width: 100%; border-collapse: collapse;">
-            <thead>
-                <tr style="background-color: #eee;">
-                    <th>Code / Barcode</th>
-                    <th>Product Name</th>
-                    <th>Qty</th>
-                    <th>Unit Price</th>
-                    <th>Line Total</th>
-                    <th>Remove</th>
+        <section class="sale-form__general">
+            <header class="section-header">
+                <h2>General Information</h2>
+            </header>
+
+            <div class="sale-form__fields">
+                <p>
+                    {{ form.cashier.label_tag }}
+                    {{ form.cashier }}
+                </p>
+                <p>
+                    <strong>Current user:</strong> {{ user.username }}
+                </p>
+            </div>
+        </section>
+
+        <section class="sale-form__items">
+            <header class="section-header">
+                <h2>Products</h2>
+            </header>
+
+            {{ formset.management_form }}
+
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Code / Barcode</th>
+                            <th>Product Name</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th>Line Total</th>
+                            <th>Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sale-items-body">
+                        {% for s_form in formset %}
+                            <tr class="sale-row">
+                                <td>
+                                    {{ s_form.product_code }}
+                                    {{ s_form.sale_item }}
+                                    {{ s_form.id }}
+                                </td>
+                                <td>{{ s_form.product_name }}</td>
+                                <td>{{ s_form.sale_quantity }}</td>
+                                <td>{{ s_form.unit_price }}</td>
+                                <td>{{ s_form.line_total }}</td>
+                                <td>{{ s_form.DELETE }}</td>
+                                {{ s_form.price_at_sale }}
+                                {{ s_form.total_price_row }}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <template id="empty-form-template">
+                <tr class="sale-row">
+                    <td>
+                        {{ formset.empty_form.product_code }}
+                        {{ formset.empty_form.sale_item }}
+                        {{ formset.empty_form.id }}
+                    </td>
+                    <td>{{ formset.empty_form.product_name }}</td>
+                    <td>{{ formset.empty_form.sale_quantity }}</td>
+                    <td>{{ formset.empty_form.unit_price }}</td>
+                    <td>{{ formset.empty_form.line_total }}</td>
+                    <td>{{ formset.empty_form.DELETE }}</td>
+                    {{ formset.empty_form.price_at_sale }}
+                    {{ formset.empty_form.total_price_row }}
                 </tr>
-            </thead>
-            <tbody id="sale-items-body">
-                {% for s_form in formset %}
-                    <tr class="sale-row">
-                        <td>
-                            {{ s_form.product_code }}
-                            {{ s_form.sale_item }}
-                        </td>
-                        <td>{{ s_form.product_name }}</td>
-                        <td>{{ s_form.sale_quantity }}</td>
-                        <td>{{ s_form.unit_price }}</td>
-                        <td>{{ s_form.line_total }}</td>
-                        <td>{{ s_form.DELETE }}</td>
-                        {{ s_form.price_at_sale }}
-                        {{ s_form.total_price_row }}
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+            </template>
+        </section>
 
-        <template id="empty-form-template">
-            <tr class="sale-row">
-                <td>
-                    {{ formset.empty_form.product_code }}
-                    {{ formset.empty_form.sale_item }}
-                </td>
-                <td>{{ formset.empty_form.product_name }}</td>
-                <td>{{ formset.empty_form.sale_quantity }}</td>
-                <td>{{ formset.empty_form.unit_price }}</td>
-                <td>{{ formset.empty_form.line_total }}</td>
-                <td>{{ formset.empty_form.DELETE }}</td>
-                {{ formset.empty_form.price_at_sale }}
-                {{ formset.empty_form.total_price_row }}
-            </tr>
-        </template>
-    </div>
+        <section class="sale-form__total">
+            <strong>Transaction Total:</strong>
+            <span id="transaction-total">0.00</span>
+        </section>
 
-    <div style="margin-top: 15px;">
-        <strong>Transaction Total:</strong>
-        <span id="transaction-total">0.00</span>
-    </div>
+        <footer class="page-actions">
+            <button type="button" id="add-row-btn">+ Add row</button>
+            <button type="submit" class="button-save">Complete Sale</button>
+            <a href="{% url 'clear_cashier_operation' %}" class="button-cancel">Cancel</a>
+        </footer>
+    </form>
 
-    <div style="margin-top: 20px;">
-        <button type="button" id="add-row-btn">+ Add row</button>
-        <button type="submit" class="button-save">Complete Sale</button>
-        <a href="{% url 'sales_list' %}" class="button-cancel">Cancel</a>
-    </div>
-</form>
+    {{ products_data|json_script:"products-data" }}
+    {{ barcodes_data|json_script:"barcodes-data" }}
+    {{ sale_draft|json_script:"sale-draft" }}
 
-{{ products_data|json_script:"products-data" }}
-{{ barcodes_data|json_script:"barcodes-data" }}
+    <script>
+        const productsData = JSON.parse(document.getElementById('products-data').textContent);
+        const barcodesData = JSON.parse(document.getElementById('barcodes-data').textContent);
+        const saleDraftElement = document.getElementById('sale-draft');
+        const saleDraft = saleDraftElement ? JSON.parse(saleDraftElement.textContent || 'null') : null;
+        const formPrefix = "{{ formset_prefix }}";
 
-<script>
-    const productsData = JSON.parse(document.getElementById('products-data').textContent);
-    const barcodesData = JSON.parse(document.getElementById('barcodes-data').textContent);
-    const formPrefix = "{{ formset_prefix }}";
+        function findProductByCode(code) {
+            const cleanCode = code.trim();
+            const byInternalCode = productsData.find(p => p.internal_code === cleanCode);
+            if (byInternalCode) return byInternalCode;
 
-    function findProductByCode(code) {
-        const cleanCode = code.trim();
-
-        const byInternalCode = productsData.find(p => p.internal_code === cleanCode);
-        if (byInternalCode) return byInternalCode;
-
-        const barcodeMatch = barcodesData.find(b => b.code === cleanCode);
-        if (barcodeMatch) {
-            return productsData.find(p => p.id === barcodeMatch.product_id);
-        }
-        return null;
-    }
-
-    function updateTransactionTotal() {
-        let total = 0;
-
-        document.querySelectorAll('.sale-row').forEach(row => {
-            if (row.style.display !== 'none') {
-                const lineTotalInput = row.querySelector('.line-total-input');
-                total += parseFloat(lineTotalInput.value || 0);
+            const barcodeMatch = barcodesData.find(b => b.code === cleanCode);
+            if (barcodeMatch) {
+                return productsData.find(p => String(p.id) === String(barcodeMatch.product_id));
             }
-        });
+            return null;
+        }
 
-        document.getElementById('transaction-total').textContent = total.toFixed(2) + " eur";
-    }
+        function updateTransactionTotal() {
+            let total = 0;
+            document.querySelectorAll('.sale-row').forEach(row => {
+                if (row.style.display !== 'none') {
+                    const lineTotalInput = row.querySelector('.line-total-input');
+                    total += parseFloat(lineTotalInput.value || 0);
+                }
+            });
+            document.getElementById('transaction-total').textContent = total.toFixed(2);
+        }
 
-    function recalculateRow(row) {
-        const qtyInput = row.querySelector('.quantity-input');
-        const unitPriceInput = row.querySelector('.unit-price-input');
-        const lineTotalInput = row.querySelector('.line-total-input');
-        const priceHidden = row.querySelector('input[name$="-price_at_sale"]');
-        const totalHidden = row.querySelector('input[name$="-total_price_row"]');
+        function recalculateRow(row) {
+            const qtyInput = row.querySelector('.quantity-input');
+            const unitPriceInput = row.querySelector('.unit-price-input');
+            const lineTotalInput = row.querySelector('.line-total-input');
+            const priceHidden = row.querySelector('input[name$="-price_at_sale"]');
+            const totalHidden = row.querySelector('input[name$="-total_price_row"]');
 
-        const qty = parseFloat(qtyInput.value || 0);
-        const price = parseFloat(unitPriceInput.value || 0);
-        const total = qty * price;
+            const qty = parseFloat(qtyInput.value || 0);
+            const price = parseFloat(unitPriceInput.value || 0);
+            const total = qty * price;
 
-        lineTotalInput.value = total.toFixed(2);
-        priceHidden.value = price.toFixed(2);
-        totalHidden.value = total.toFixed(2);
-        updateTransactionTotal();
-    }
+            lineTotalInput.value = total.toFixed(2);
+            priceHidden.value = price.toFixed(2);
+            totalHidden.value = total.toFixed(2);
+            updateTransactionTotal();
+        }
 
-    function bindRow(row) {
-        const codeInput = row.querySelector('.product-code-input');
-        const qtyInput = row.querySelector('.quantity-input');
-        const saleItemInput = row.querySelector('input[name$="-sale_item"]');
-        const nameInput = row.querySelector('.product-name-input');
-        const unitPriceInput = row.querySelector('.unit-price-input');
+        function collectDraftState() {
+            const rows = Array.from(document.querySelectorAll('.sale-row'));
 
-        codeInput.addEventListener('change', () => {
-            const product = findProductByCode(codeInput.value);
+            return {
+                formset_data: {
+                    TOTAL_FORMS: rows.length,
+                    forms: rows.map(row => {
+                        const productCodeInput = row.querySelector('.product-code-input');
+                        const saleItemInput = row.querySelector('input[name$="-sale_item"]');
+                        const qtyInput = row.querySelector('.quantity-input');
+                        const nameInput = row.querySelector('.product-name-input');
+                        const unitPriceInput = row.querySelector('.unit-price-input');
+                        const lineTotalInput = row.querySelector('.line-total-input');
+                        const priceHidden = row.querySelector('input[name$="-price_at_sale"]');
+                        const totalHidden = row.querySelector('input[name$="-total_price_row"]');
+                        const deleteCheckbox = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
 
-            if (!product) {
-                alert('Product not found');
+                        return {
+                            product_code: productCodeInput ? productCodeInput.value : '',
+                            sale_item: saleItemInput ? saleItemInput.value : '',
+                            sale_quantity: qtyInput ? qtyInput.value : '',
+                            product_name: nameInput ? nameInput.value : '',
+                            unit_price: unitPriceInput ? unitPriceInput.value : '',
+                            line_total: lineTotalInput ? lineTotalInput.value : '',
+                            price_at_sale: priceHidden ? priceHidden.value : '',
+                            total_price_row: totalHidden ? totalHidden.value : '',
+                            DELETE: deleteCheckbox && deleteCheckbox.checked ? 'on' : '',
+                        };
+                    })
+                }
+            };
+        }
+
+        async function saveDraft() {
+            console.log("SAVE DRAFT CALLED");
+
+            try {
+                await fetch("{% url 'sale_draft_save' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({
+                        form_data: {
+                            cashier_id: "{{ user.pk }}",
+                            cashier_username: "{{ user.username }}"
+                        },
+                        formset_data: collectDraftState().formset_data
+                    })
+                });
+            } catch (error) {
+                console.error('Draft save failed:', error);
+            }
+        }
+
+        function bindRow(row) {
+            const codeInput = row.querySelector('.product-code-input');
+            const qtyInput = row.querySelector('.quantity-input');
+            const saleItemInput = row.querySelector('input[name$="-sale_item"]');
+            const nameInput = row.querySelector('.product-name-input');
+            const unitPriceInput = row.querySelector('.unit-price-input');
+
+            codeInput.addEventListener('change', async () => {
+                const product = findProductByCode(codeInput.value);
+
+                if (!product) {
+                    alert('Product not found');
+                    return;
+                }
+
+                saleItemInput.value = product.id;
+                nameInput.value = product.name;
+                unitPriceInput.value = product.sell_price;
+                recalculateRow(row);
+                await saveDraft();
+            });
+
+            qtyInput.addEventListener('input', async () => {
+                recalculateRow(row);
+                await saveDraft();
+            });
+
+            unitPriceInput.addEventListener('input', async () => {
+                recalculateRow(row);
+                await saveDraft();
+            });
+
+            const deleteCheckbox = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+            if (deleteCheckbox) {
+                deleteCheckbox.addEventListener('change', async () => {
+                    row.style.display = deleteCheckbox.checked ? 'none' : '';
+                    updateTransactionTotal();
+                    await saveDraft();
+                });
+            }
+        }
+
+        function populateDraftIfNeeded() {
+            if (!saleDraft || !saleDraft.formset_data || !saleDraft.formset_data.forms) {
                 return;
             }
 
-            saleItemInput.value = product.id;
-            nameInput.value = product.name;
-            unitPriceInput.value = product.sell_price;
-            recalculateRow(row);
-        });
+            const rows = document.querySelectorAll('.sale-row');
+            const draftForms = saleDraft.formset_data.forms;
 
-        qtyInput.addEventListener('input', () => {
-            recalculateRow(row);
-        });
+            draftForms.forEach((draftRow, index) => {
+                if (!rows[index]) return;
 
-        const deleteCheckbox = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
-        if (deleteCheckbox) {
-            deleteCheckbox.addEventListener('change', () => {
-                row.style.display = deleteCheckbox.checked ? 'none' : '';
-                updateTransactionTotal();
+                const row = rows[index];
+                const codeInput = row.querySelector('.product-code-input');
+                const qtyInput = row.querySelector('.quantity-input');
+                const saleItemInput = row.querySelector('input[name$="-sale_item"]');
+                const nameInput = row.querySelector('.product-name-input');
+                const unitPriceInput = row.querySelector('.unit-price-input');
+                const lineTotalInput = row.querySelector('.line-total-input');
+                const priceHidden = row.querySelector('input[name$="-price_at_sale"]');
+                const totalHidden = row.querySelector('input[name$="-total_price_row"]');
+
+                const product = draftRow.sale_item
+                    ? productsData.find(p => String(p.id) === String(draftRow.sale_item))
+                    : findProductByCode(draftRow.product_code);
+
+                if (product) {
+                    codeInput.value = product.internal_code;
+                    saleItemInput.value = product.id;
+                    nameInput.value = product.name;
+                    unitPriceInput.value = product.sell_price;
+                } else {
+                    codeInput.value = draftRow.product_code || '';
+                    saleItemInput.value = draftRow.sale_item || '';
+                    nameInput.value = draftRow.product_name || '';
+                    unitPriceInput.value = draftRow.unit_price || '';
+                }
+
+                qtyInput.value = draftRow.sale_quantity || 1;
+                lineTotalInput.value = draftRow.line_total || '';
+                priceHidden.value = draftRow.price_at_sale || '';
+                totalHidden.value = draftRow.total_price_row || '';
+
+                if (product && (!lineTotalInput.value || !priceHidden.value || !totalHidden.value)) {
+                    recalculateRow(row);
+                }
             });
+
+            const totalFormsInput = document.getElementById(`id_${formPrefix}-TOTAL_FORMS`);
+            if (totalFormsInput) {
+                totalFormsInput.value = rows.length;
+            }
+
+            updateTransactionTotal();
         }
-    }
 
-    document.querySelectorAll('.sale-row').forEach(bindRow);
+        document.querySelectorAll('.sale-row').forEach(bindRow);
+        populateDraftIfNeeded();
+        updateTransactionTotal();
 
-    document.getElementById('add-row-btn').addEventListener('click', () => {
-        const body = document.getElementById('sale-items-body');
-        const totalFormsInput = document.getElementById(`id_${formPrefix}-TOTAL_FORMS`);
-        const formCount = parseInt(totalFormsInput.value);
+        document.getElementById('add-row-btn').addEventListener('click', async () => {
+            await saveDraft();
 
-        const template = document.getElementById('empty-form-template').innerHTML;
-        const newRowHtml = template.replaceAll('__prefix__', formCount);
+            const body = document.getElementById('sale-items-body');
+            const totalFormsInput = document.getElementById(`id_${formPrefix}-TOTAL_FORMS`);
+            const formCount = parseInt(totalFormsInput.value);
 
-        body.insertAdjacentHTML('beforeend', newRowHtml);
-        totalFormsInput.value = formCount + 1;
+            const template = document.getElementById('empty-form-template').innerHTML;
+            const newRowHtml = template.replaceAll('__prefix__', formCount);
 
-        const newRow = body.lastElementChild;
-        bindRow(newRow);
-    });
+            body.insertAdjacentHTML('beforeend', newRowHtml);
+            totalFormsInput.value = formCount + 1;
 
-    updateTransactionTotal();
-</script>
-
+            const newRow = body.lastElementChild;
+            bindRow(newRow);
+            updateTransactionTotal();
+            await saveDraft();
+        });
+    </script>
+</section>
 {% endblock %}

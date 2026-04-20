@@ -3,8 +3,20 @@
 {% block content %}
 <section class="delivery-form">
     <header class="page-header">
-        <h1>Edit Delivery ID: {{ delivery.id }}</h1>
+        <h1>Edit Delivery</h1>
     </header>
+
+    {% if form.errors %}
+        <div class="form-errors">
+            {{ form.errors }}
+        </div>
+    {% endif %}
+
+    {% if formset.non_form_errors %}
+        <div class="form-errors">
+            {{ formset.non_form_errors }}
+        </div>
+    {% endif %}
 
     <form method="post" class="delivery-form__form">
         {% csrf_token %}
@@ -20,12 +32,12 @@
                     {{ form.receiver }}
                 </p>
                 <p>
-                    {{ form.supplier.label_tag }}
-                    {{ form.supplier }}
-                </p>
-                <p>
                     {{ form.time_of_delivery.label_tag }}
                     {{ form.time_of_delivery }}
+                </p>
+                <p>
+                    {{ form.supplier.label_tag }}
+                    {{ form.supplier }}
                 </p>
                 <p>
                     {{ form.document_type.label_tag }}
@@ -67,6 +79,7 @@
                                 <td>
                                     {{ s_form.product_code }}
                                     {{ s_form.delivery_item }}
+                                    {{ s_form.id }}
                                 </td>
                                 <td>{{ s_form.product_name }}</td>
                                 <td>{{ s_form.delivery_quantity }}</td>
@@ -86,6 +99,7 @@
                     <td>
                         {{ formset.empty_form.product_code }}
                         {{ formset.empty_form.delivery_item }}
+                        {{ formset.empty_form.id }}
                     </td>
                     <td>{{ formset.empty_form.product_name }}</td>
                     <td>{{ formset.empty_form.delivery_quantity }}</td>
@@ -100,12 +114,12 @@
 
         <section class="delivery-form__total">
             <strong>Transaction Total:</strong>
-            <span id="transaction-total">{{ delivery.total_amount }} eur</span>
+            <span id="transaction-total">0.00 eur</span>
         </section>
 
         <footer class="page-actions">
             <button type="button" id="add-row-btn">+ Add row</button>
-            <button type="submit" class="button-save">Update Delivery</button>
+            <button type="submit" class="button-save">Save Changes</button>
             <a href="{% url 'delivery_details' delivery.pk %}" class="button-cancel">Cancel</a>
         </footer>
     </form>
@@ -126,7 +140,7 @@
 
             const barcodeMatch = barcodesData.find(b => b.code === cleanCode);
             if (barcodeMatch) {
-                return productsData.find(p => p.id === barcodeMatch.product_id);
+                return productsData.find(p => String(p.id) === String(barcodeMatch.product_id));
             }
             return null;
         }
@@ -182,8 +196,13 @@
                 recalculateRow(row);
             });
 
-            qtyInput.addEventListener('input', () => recalculateRow(row));
-            priceInput.addEventListener('input', () => recalculateRow(row));
+            qtyInput.addEventListener('input', () => {
+                recalculateRow(row);
+            });
+
+            priceInput.addEventListener('input', () => {
+                recalculateRow(row);
+            });
 
             const deleteCheckbox = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
             if (deleteCheckbox) {
@@ -195,6 +214,7 @@
         }
 
         document.querySelectorAll('.delivery-row').forEach(bindRow);
+        updateTransactionTotal();
 
         document.getElementById('add-row-btn').addEventListener('click', () => {
             const body = document.getElementById('delivery-items-body');
@@ -209,9 +229,8 @@
 
             const newRow = body.lastElementChild;
             bindRow(newRow);
+            updateTransactionTotal();
         });
-
-        updateTransactionTotal();
     </script>
 </section>
 {% endblock %}
