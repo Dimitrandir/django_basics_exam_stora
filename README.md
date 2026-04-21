@@ -1,4 +1,4 @@
-# STORA - Warehouse Management System
+# STORA - Warehouse and Sales Management System
 
 STORA is a Django-based warehouse and sales management system designed for small and medium-sized businesses. It provides tools for managing products, categories, suppliers, sales, deliveries, employee accounts, reports, and background processing with Celery.
 
