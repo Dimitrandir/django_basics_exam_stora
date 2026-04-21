@@ -1,6 +1,12 @@
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, DeleteView
+from django.views.decorators.http import require_POST
+
+import json
 
 from STORA.core.session_service import (
     clear_cashier_operation_state,
@@ -13,10 +19,7 @@ from STORA.deliveries.forms import DeliveryForms, DeliveryItemFormSet
 from STORA.deliveries.models import DeliveryAttributes
 from STORA.products.models import Product, Barcode
 import json
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-
-
+@login_required
 def deliveries_add(request):
     products_data = list(Product.objects.values('id', 'internal_code', 'name', 'delivery_price'))
     barcodes_data = list(Barcode.objects.values('code', 'product_id'))
@@ -110,7 +113,7 @@ def delivery_draft_save(request):
     return JsonResponse({'status': 'ok'})
 
 
-class DeliveryDetailView(DetailView):
+class DeliveryDetailView(LoginRequiredMixin, DetailView):
     model = DeliveryAttributes
     template_name = 'deliveries/delivery_details.html'
     context_object_name = 'delivery'
@@ -121,12 +124,13 @@ class DeliveryDetailView(DetailView):
         return context
 
 
-class DeliveryListView(ListView):
+class DeliveryListView(LoginRequiredMixin, ListView):
     model = DeliveryAttributes
     template_name = 'deliveries/deliveries_list.html'
     context_object_name = 'deliveries'
 
 
+@login_required
 def delivery_edit(request, pk):
     delivery = get_object_or_404(DeliveryAttributes, pk=pk)
 
@@ -159,7 +163,7 @@ def delivery_edit(request, pk):
     return render(request, 'deliveries/delivery_edit.html', context)
 
 
-class DeliveryDeleteView(DeleteView):
+class DeliveryDeleteView(LoginRequiredMixin, DeleteView):
     model = DeliveryAttributes
     template_name = 'deliveries/delivery_confirm_delete.html'
     context_object_name = 'delivery'

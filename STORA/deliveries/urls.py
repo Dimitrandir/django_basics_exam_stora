@@ -1,5 +1,6 @@
 from django.urls import path
 
+from .api_views import DeliveryListAPI
 from .views import (
     deliveries_add,
     delivery_edit,
@@ -16,4 +17,5 @@ urlpatterns = [
     path('<int:pk>/', DeliveryDetailView.as_view(), name='delivery_details'),
     path('edit/<int:pk>/', delivery_edit, name='delivery_edit'),
     path('delete/<int:pk>/', DeliveryDeleteView.as_view(), name='delivery_delete'),
+    path('api/', DeliveryListAPI.as_view(), name='api_deliveries'),
 ]

@@ -1,8 +1,11 @@
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, DeleteView
-from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from STORA.sales.tasks import log_sale_completed
 
 import json
 
@@ -16,22 +19,6 @@ from STORA.core.utils import build_cashier_operation_state, build_restore_formse
 from STORA.products.models import Product, Barcode
 from STORA.sales.forms import SaleForms, SaleItemFormSet
 from STORA.sales.models import SaleAttributes
-
-
-def _build_restore_formset_data(formset_prefix: str, formset_initial: list[dict]) -> dict:
-    restore_post_data = {
-        f'{formset_prefix}-TOTAL_FORMS': str(len(formset_initial)),
-        f'{formset_prefix}-INITIAL_FORMS': '0',
-        f'{formset_prefix}-MIN_NUM_FORMS': '0',
-        f'{formset_prefix}-MAX_NUM_FORMS': '1000',
-    }
-
-    for index, row in enumerate(formset_initial):
-        for field_name, value in row.items():
-            restore_post_data[f'{formset_prefix}-{index}-{field_name}'] = value
-
-    return restore_post_data
-
 
 def sales_add(request):
     products_data = list(Product.objects.values('id', 'internal_code', 'name', 'sell_price'))
@@ -55,6 +42,8 @@ def sales_add(request):
             formset.instance = sale
             formset.save()
             sale.save()
+
+            log_sale_completed.delay(sale.id)
 
             clear_cashier_operation_state(request)
             return redirect('sales_list')

@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Sum
 from django.shortcuts import render
 from django.utils import timezone
@@ -11,7 +12,7 @@ from STORA.reports.forms import ReportPeriodForm
 from STORA.sales.models import SaleAttributes
 
 
-class ReportsBaseView(View):
+class ReportsBaseView(LoginRequiredMixin, View):
     def get_default_period(self):
         end_date = timezone.localdate()
         start_date = end_date - timedelta(days=7)

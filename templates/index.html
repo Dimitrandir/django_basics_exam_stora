@@ -1,66 +1,37 @@
 {% extends 'base.html' %}
-{% load currency_filters %}
 
 {% block content %}
-<h1>Dashboard</h1>
+<div class="row align-items-center g-4">
+    <div class="col-lg-7">
+        <div class="p-4 p-lg-5 bg-white rounded-4 shadow-sm">
+            <span class="badge bg-primary mb-3">Warehouse & Sales System</span>
+            <h1 class="display-5 fw-bold mb-3">Welcome to STORA</h1>
+            <p class="lead text-muted mb-4">
+                Manage products, sales, deliveries and reports in one clean dashboard.
+            </p>
 
-{% if last_operation %}
-    <section class="session-notice">
-        <p>
-            You have an unfinished
-            {% if last_operation.type == 'sale' %}
-                sale
-            {% elif last_operation.type == 'delivery' %}
-                delivery
-            {% endif %}
-            operation.
-        </p>
-
-        <a href="{{ last_operation.path }}">Resume operation</a>
-    </section>
-{% endif %}
-
-<div style="display: flex; gap: 20px; margin-bottom: 30px;">
-    <div style="flex: 1; padding: 20px; background: #3498db; color: white; border-radius: 8px;">
-        <h3>Total Products</h3>
-        <p style="font-size: 24px; font-weight: bold;">{{ total_products }}</p>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{% url 'product_list' %}" class="btn btn-dark btn-lg">Browse Products</a>
+                <a href="{% url 'sales_list' %}" class="btn btn-outline-primary btn-lg">Open Sales</a>
+            </div>
+        </div>
     </div>
-    <div style="flex: 1; padding: 20px; background: #27ae60; color: white; border-radius: 8px;">
-        <h3>Total Revenue</h3>
-        <p style="font-size: 24px; font-weight: bold;">{{ total_revenue|currency }}</p>
-    </div>
-    <div style="flex: 1; padding: 20px; background: #f39c12; color: white; border-radius: 8px;">
-        <h3>Sales Count</h3>
-        <p style="font-size: 24px; font-weight: bold;">{{ total_sales_count }}</p>
-    </div>
-</div>
 
-<h2>Recent Sales</h2>
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Date</th>
-            <th>Cashier</th>
-            <th>Amount</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for sale in recent_sales %}
-        <tr>
-            <td>#{{ sale.id }}</td>
-            <td>{{ sale.time_of_sale|date:"d.m.Y H:i" }}</td>
-            <td>{{ sale.cashier }}</td>
-            <td>{{ sale.total_amount|currency }}</td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="4">No sales recorded yet.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-<div style="margin-top: 20px;">
-    <a href="{% url 'sale_add' %}" class="btn btn-primary" style="background-color: #2c3e50;">+ New Sale</a>
-    <a href="{% url 'product_create' %}" class="btn btn-primary" style="background-color: #2c3e50;">+ Add Product</a>
+    <div class="col-lg-5">
+        <div class="bg-dark text-white p-4 p-lg-5 rounded-4 shadow-sm">
+            <h2 class="h4 mb-3">Quick Access</h2>
+            <div class="list-group list-group-flush rounded-3 overflow-hidden">
+                <a href="{% url 'delivery_add' %}" class="list-group-item list-group-item-action">
+                    New Delivery
+                </a>
+                <a href="{% url 'sale_add' %}" class="list-group-item list-group-item-action">
+                    New Sale
+                </a>
+                <a href="{% url 'sales_report' %}" class="list-group-item list-group-item-action">
+                    Sales Report
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
